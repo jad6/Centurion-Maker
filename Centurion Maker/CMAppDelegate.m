@@ -6,25 +6,13 @@
 //  Copyright (c) 2012 Jad. All rights reserved.
 //
 
-#import <AVFoundation/AVFoundation.h>
-
 #import "CMAppDelegate.h"
 
-#define DEBUG 1
-
-typedef void (^exportBlock)(AVAssetExportSessionStatus status);
+#import "CMMainViewController.h"
 
 @interface CMAppDelegate ()
 
-@property (strong, nonatomic) IBOutlet NSTextField *numTracksField, *progressField;
-@property (strong, nonatomic) IBOutlet NSProgressIndicator *progressIndicator;
-@property (strong, nonatomic) IBOutlet NSButton *clearSelectionButton, *createCenturionButton, *addTrackButton;
-
-@property (strong, nonatomic) NSURL *saveURL;
-@property (strong, nonatomic) AVAsset *beepAsset;
-@property (strong, nonatomic) AVMutableComposition *centurionMixComposition;
-@property (strong, nonatomic) AVAssetExportSession *exportSession;
-@property (strong, nonatomic) NSTimer *progressIndicatorTimer;
+@property (strong, nonatomic) CMMainViewController *mainVC;
 
 @end
 
@@ -37,182 +25,11 @@ typedef void (^exportBlock)(AVAssetExportSessionStatus status);
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     // Insert code here to initialize your application.
-    self.fileURLs = [[NSMutableArray alloc] init];
+    self.mainVC = [[CMMainViewController alloc] initWithNibName:@"CMMainViewController" bundle:nil];
     
-    self.beepAsset = [AVAsset assetWithURL:[[NSBundle mainBundle] URLForResource:@"ComputerData" withExtension:@"caf"]];
-    
-    [self.progressField setHidden:YES];
-    [self.progressIndicator setHidden:YES];
-    
-    [self.clearSelectionButton setEnabled:NO];
-        
-    [self updateFileURLs];
-}
-
-#pragma mark - Actions
-
-- (IBAction)selectTracks:(id)sender
-{
-    NSOpenPanel *openPanel = [NSOpenPanel openPanel];
-    openPanel.canChooseDirectories = NO;
-    openPanel.allowsMultipleSelection = YES;
-    
-    NSDocumentController *documentController = [NSDocumentController sharedDocumentController];
-    if ([documentController runModalOpenPanel:openPanel forTypes:[NSArray arrayWithObjects:@"mp3", @"m4a", nil]] == NSOKButton) {
-        [self.fileURLs addObjectsFromArray:[openPanel URLs]];
-        [self updateFileURLs];
-    }
-}
-
-- (IBAction)clearSelectedtracks:(id)sender
-{
-    [self.fileURLs removeAllObjects];
-    [self updateFileURLs];
-}
-
-- (IBAction)createCenturion:(id)sender
-{
-    NSSavePanel *savePanel = [NSSavePanel savePanel];
-    savePanel.allowedFileTypes = [NSArray arrayWithObject:@"m4a"];
-    [savePanel beginSheetModalForWindow:self.window completionHandler:^(NSInteger result) {
-        
-        if (result == NSFileHandlingPanelOKButton) {
-            self.saveURL = [savePanel URL];
-            
-            [self.progressField setHidden:NO];
-            [self.progressIndicator setHidden:NO];
-            [self.progressIndicator startAnimation:self];
-            
-            [self createCenturionMixFromURLs:self.fileURLs];
-        }
-    }];
-}
-
-#pragma mark - Logic
-
-- (void)updateProgressIndicator
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.progressIndicator.doubleValue = 100 * self.exportSession.progress;
-        
-        if (self.progressIndicator.doubleValue > 99.0) {
-            [self.progressIndicator stopAnimation:self];
-            self.progressField.stringValue = @"Complete!";
-        }
-    });
-}
-
-- (void)updateFileURLs
-{
-    switch (self.fileURLs.count) {
-        case 0:
-            self.numTracksField.stringValue = @"Select 100 files to use in the centurion.";
-            [self.clearSelectionButton setEnabled:NO];
-            [self.createCenturionButton setEnabled:NO];
-            [self.addTrackButton setEnabled:YES];
-            break;
-            
-        case 100:
-            [self.clearSelectionButton setEnabled:YES];
-            [self.createCenturionButton setEnabled:YES];
-            [self.addTrackButton setEnabled:NO];
-            break;
-            
-        default:
-            self.numTracksField.stringValue = [NSString stringWithFormat:@"%lu tracks selected", self.fileURLs.count];
-            [self.clearSelectionButton setEnabled:YES];
-            [self.createCenturionButton setEnabled:NO];
-            [self.addTrackButton setEnabled:YES];
-            break;
-    }
-}
-
-- (CMTime)addAsset:(AVAsset *)asset
-         toTrack:(AVMutableCompositionTrack *)compositionTrack
-   insertionTime:(CMTime)insertionTime
-    withDuration:(CMTime)duration
-       startTime:(CMTime)startTime 
-{
-    NSError *error = nil;
-
-    NSArray *tracks = [asset tracksWithMediaType:AVMediaTypeAudio];
-    AVAssetTrack *clipAudioTrack = [tracks lastObject];
-    CMTimeRange timeRangeInAsset = CMTimeRangeMake(insertionTime, duration);
-    [compositionTrack insertTimeRange:timeRangeInAsset ofTrack:clipAudioTrack atTime:startTime error:&error];
-    
-    return CMTimeAdd(startTime, timeRangeInAsset.duration);
-}
-
-#pragma mark - AV foundation
-
-- (void)createCenturionMixFromURLs:(NSArray *)fileURLs
-{    
-    self.centurionMixComposition = [[AVMutableComposition alloc] init];
-    AVMutableCompositionTrack *compositionAudioTrack = [self.centurionMixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
-    
-    CMTime nextClipStartTime = kCMTimeZero;
-    
-    for (NSURL *fileURL in fileURLs) {
-        AVAsset *asset = [AVAsset assetWithURL:fileURL];
-        
-        nextClipStartTime =[self addAsset:asset
-                                  toTrack:compositionAudioTrack
-                            insertionTime:CMTimeMakeWithSeconds(60, 1)
-                             withDuration:CMTimeMakeWithSeconds(59, 1)
-                                startTime:nextClipStartTime];
-        
-        nextClipStartTime = [self addAsset:self.beepAsset
-                                   toTrack:compositionAudioTrack
-                             insertionTime:kCMTimeZero
-                              withDuration:CMTimeMakeWithSeconds(1, 1)
-                                 startTime:nextClipStartTime];
-    }
-    
-    [self exportWithCOmpletionHandler:^(AVAssetExportSessionStatus status) {
-        [self.progressIndicator stopAnimation:self];
-    }];
-}
-
-- (void)exportWithCOmpletionHandler:(exportBlock)completion
-{
-    self.progressIndicatorTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
-                                                                   target:self
-                                                                 selector:@selector(updateProgressIndicator)
-                                                                 userInfo:nil
-                                                                  repeats:YES];
-    
-    dispatch_queue_t exportQueue = dispatch_queue_create("export", NULL);
-	dispatch_async(exportQueue, ^{
-        self.exportSession = [AVAssetExportSession exportSessionWithAsset:self.centurionMixComposition
-                                                                                presetName:AVAssetExportPresetAppleM4A];
-        
-        // Configure export session, output with all our parameters
-        self.exportSession.outputURL = self.saveURL;
-        self.exportSession.outputFileType = AVFileTypeAppleM4A;
-        
-        // Perform the export
-        [self.exportSession exportAsynchronouslyWithCompletionHandler:^(void){
-            switch (self.exportSession.status) {
-                case AVAssetExportSessionStatusCompleted:
-                    NSLog(@"Success!");
-                    break;
-                case AVAssetExportSessionStatusFailed:
-                    NSLog(@"Failed:%@", self.exportSession.error);
-                    break;
-
-                case AVAssetExportSessionStatusCancelled:
-                    NSLog(@"Canceled:%@", self.exportSession.error);
-                    break;
-
-                default:
-                    break;
-            }
-
-            if (completion) {
-                completion(self.exportSession.status);
-            }
-        }];
-    });
+    [self.window setContentView:self.mainVC.view];
+    self.mainVC.managedObjectContext = self.managedObjectContext;
+//    self.mainVC.pathToAppSupport = [self applicationFilesDirectory];
 }
 
 #pragma mark - CoreData

@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		051AA91B16EF51970095FF6E /* CMMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 051AA91916EF51970095FF6E /* CMMainViewController.m */; };
+		051AA91C16EF51970095FF6E /* CMMainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 051AA91A16EF51970095FF6E /* CMMainViewController.xib */; };
+		05654C7E1757CACC00C7235F /* NSManagedObject+Appulse.m in Sources */ = {isa = PBXBuildFile; fileRef = 05654C7D1757CACC00C7235F /* NSManagedObject+Appulse.m */; };
+		05654C811757CEE500C7235F /* Tracklist.m in Sources */ = {isa = PBXBuildFile; fileRef = 05654C801757CEE500C7235F /* Tracklist.m */; };
+		05654C871757D58B00C7235F /* Track.m in Sources */ = {isa = PBXBuildFile; fileRef = 05654C861757D58B00C7235F /* Track.m */; };
 		05EC7AB7167AE9660062911E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05EC7AB6167AE9660062911E /* Cocoa.framework */; };
 		05EC7AC1167AE9660062911E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 05EC7ABF167AE9660062911E /* InfoPlist.strings */; };
 		05EC7AC3167AE9660062911E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EC7AC2167AE9660062911E /* main.m */; };
@@ -20,6 +25,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		051AA91816EF51970095FF6E /* CMMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMMainViewController.h; sourceTree = "<group>"; };
+		051AA91916EF51970095FF6E /* CMMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMMainViewController.m; sourceTree = "<group>"; };
+		051AA91A16EF51970095FF6E /* CMMainViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CMMainViewController.xib; sourceTree = "<group>"; };
+		05654C7C1757CACC00C7235F /* NSManagedObject+Appulse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+Appulse.h"; sourceTree = "<group>"; };
+		05654C7D1757CACC00C7235F /* NSManagedObject+Appulse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+Appulse.m"; sourceTree = "<group>"; };
+		05654C7F1757CEE500C7235F /* Tracklist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tracklist.h; sourceTree = "<group>"; };
+		05654C801757CEE500C7235F /* Tracklist.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tracklist.m; sourceTree = "<group>"; };
+		05654C851757D58B00C7235F /* Track.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Track.h; sourceTree = "<group>"; };
+		05654C861757D58B00C7235F /* Track.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Track.m; sourceTree = "<group>"; };
 		05EC7AB2167AE9660062911E /* Centurion Maker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Centurion Maker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		05EC7AB6167AE9660062911E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		05EC7AB9167AE9660062911E /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -53,6 +67,53 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		051AA91716EF51740095FF6E /* GUI */ = {
+			isa = PBXGroup;
+			children = (
+				051AA91816EF51970095FF6E /* CMMainViewController.h */,
+				051AA91916EF51970095FF6E /* CMMainViewController.m */,
+				051AA91A16EF51970095FF6E /* CMMainViewController.xib */,
+			);
+			name = GUI;
+			sourceTree = "<group>";
+		};
+		051AA91D16EF51A30095FF6E /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				05654C7C1757CACC00C7235F /* NSManagedObject+Appulse.h */,
+				05654C7D1757CACC00C7235F /* NSManagedObject+Appulse.m */,
+				05EC7ACE167AE9660062911E /* Centurion_Maker.xcdatamodeld */,
+				051AA92E16EF6B4D0095FF6E /* Objects */,
+			);
+			name = CoreData;
+			sourceTree = "<group>";
+		};
+		051AA91E16EF51AD0095FF6E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				05EC7AEF167B29090062911E /* ComputerData.caf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		051AA92E16EF6B4D0095FF6E /* Objects */ = {
+			isa = PBXGroup;
+			children = (
+				05654C851757D58B00C7235F /* Track.h */,
+				05654C861757D58B00C7235F /* Track.m */,
+				05654C7F1757CEE500C7235F /* Tracklist.h */,
+				05654C801757CEE500C7235F /* Tracklist.m */,
+			);
+			name = Objects;
+			sourceTree = "<group>";
+		};
+		05654C8D1757DA8700C7235F /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
 		05EC7AA7167AE9660062911E = {
 			isa = PBXGroup;
 			children = (
@@ -97,8 +158,10 @@
 				05EC7AC8167AE9660062911E /* CMAppDelegate.h */,
 				05EC7AC9167AE9660062911E /* CMAppDelegate.m */,
 				05EC7ACB167AE9660062911E /* MainMenu.xib */,
-				05EC7AEF167B29090062911E /* ComputerData.caf */,
-				05EC7ACE167AE9660062911E /* Centurion_Maker.xcdatamodeld */,
+				05654C8D1757DA8700C7235F /* Model */,
+				051AA91716EF51740095FF6E /* GUI */,
+				051AA91D16EF51A30095FF6E /* CoreData */,
+				051AA91E16EF51AD0095FF6E /* Resources */,
 				05EC7ABD167AE9660062911E /* Supporting Files */,
 			);
 			path = "Centurion Maker";
@@ -172,6 +235,7 @@
 				05EC7AC7167AE9660062911E /* Credits.rtf in Resources */,
 				05EC7ACD167AE9660062911E /* MainMenu.xib in Resources */,
 				05EC7AF0167B29090062911E /* ComputerData.caf in Resources */,
+				051AA91C16EF51970095FF6E /* CMMainViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -185,6 +249,10 @@
 				05EC7AC3167AE9660062911E /* main.m in Sources */,
 				05EC7ACA167AE9660062911E /* CMAppDelegate.m in Sources */,
 				05EC7AD0167AE9660062911E /* Centurion_Maker.xcdatamodeld in Sources */,
+				051AA91B16EF51970095FF6E /* CMMainViewController.m in Sources */,
+				05654C7E1757CACC00C7235F /* NSManagedObject+Appulse.m in Sources */,
+				05654C811757CEE500C7235F /* Tracklist.m in Sources */,
+				05654C871757D58B00C7235F /* Track.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -314,6 +382,7 @@
 				05EC7AD5167AE9660062911E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
