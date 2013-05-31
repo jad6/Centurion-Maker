@@ -6,31 +6,26 @@
 //  Copyright (c) 2013 Jad. All rights reserved.
 //
 
-#import <AVFoundation/AVFoundation.h>
-
 #import "CMMainViewController.h"
 
 #import "CMAppDelegate.h"
+#import "CMMediaManager.h"
 #import "CMTrackTableView.h"
 
 #import "NSManagedObject+Appulse.h"
 #import "Track.h"
 
-@interface CMMainViewController () <CMTrackTableViewDelegate, NSTableViewDataSource>
+@interface CMMainViewController () <CMTrackTableViewDelegate, NSTableViewDataSource, NSWindowRestoration, CMMediaManagerDelegate>
 
 @property (weak, nonatomic) IBOutlet NSTextField *numTracksField, *progressField;
 @property (weak, nonatomic) IBOutlet NSProgressIndicator *progressIndicator;
-@property (weak, nonatomic) IBOutlet NSButton *clearSelectionButton, *createCenturionButton, *addTrackButton;
+@property (weak, nonatomic) IBOutlet NSButton *clearSelectionButton, *centurionButton, *addTrackButton;
 @property (weak, nonatomic) IBOutlet CMTrackTableView *tracksTableView;
 
 @property (strong, nonatomic) IBOutlet NSArrayController *trackArrayController;
 
-@property (strong, nonatomic) NSURL *saveURL;
-@property (strong, nonatomic) AVMutableComposition *centurionMixComposition;
-@property (strong, nonatomic) AVAssetExportSession *exportSession;
-@property (strong, nonatomic) NSTimer *progressIndicatorTimer;
-
 @property (nonatomic) NSUInteger totalNumTracks;
+@property (nonatomic) BOOL creatingCenturion;
 
 @end
 
@@ -42,7 +37,7 @@ static NSString *DraggedCellIdentifier = @"Track Dragged Cell";
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        // Initialization code here.        
+        // Initialization code here.
     }
     
     return self;
@@ -82,55 +77,11 @@ static NSString *DraggedCellIdentifier = @"Track Dragged Cell";
 {
     NSInteger trackCount = [Track countInContext:self.managedObjectContext];
     
-    [self.createCenturionButton setEnabled:(trackCount == 100)];
+    [self.centurionButton setEnabled:(trackCount == 100)];
     
     [self.numTracksField setStringValue:[[NSString alloc] initWithFormat:@"%li tracks", trackCount]];
     
     self.totalNumTracks = trackCount;
-}
-
-- (void)setProgressTimer
-{
-    self.progressIndicatorTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
-                                                                   target:self
-                                                                 selector:@selector(updateProgressIndicator)
-                                                                 userInfo:nil
-                                                                  repeats:YES];
-}
-
-- (void)updateProgressIndicator
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.progressIndicator setDoubleValue:(100 * self.exportSession.progress)];
-        
-        if ([self.progressIndicator doubleValue] > 99.0) {
-            [self.progressIndicator stopAnimation:self];
-            [self.progressField setStringValue:@"Complete!"];
-        }
-    });
-}
-
-- (CMTime)addAsset:(AVAsset *)asset
-           toTrack:(AVMutableCompositionTrack *)compositionTrack
-     insertionTime:(CMTime)insertionTime
-      withDuration:(CMTime)duration
-         startTime:(CMTime)startTime idx:(NSInteger)idx
-{
-    NSError *error = nil;
-    
-    NSArray *tracks = [asset tracksWithMediaType:AVMediaTypeAudio];
-
-//    NSLog(@"Track: %@", tracks);
-
-    if (idx > 0) {
-        NSLog(@"%@, %li", tracks, idx);
-    }
-    
-    AVAssetTrack *clipAudioTrack = [tracks lastObject];
-    CMTimeRange timeRangeInAsset = CMTimeRangeMake(insertionTime, duration);
-    [compositionTrack insertTimeRange:timeRangeInAsset ofTrack:clipAudioTrack atTime:startTime error:&error];
-    
-    return CMTimeAdd(startTime, timeRangeInAsset.duration);
 }
 
 #pragma mark - Actions
@@ -140,38 +91,26 @@ static NSString *DraggedCellIdentifier = @"Track Dragged Cell";
     NSOpenPanel *openPanel = [NSOpenPanel openPanel];
     openPanel.canChooseDirectories = NO;
     openPanel.allowsMultipleSelection = YES;
-        
+    
     NSDocumentController *documentController = [NSDocumentController sharedDocumentController];
     if ([documentController runModalOpenPanel:openPanel forTypes:@[@"mp3", @"m4a"]] == NSOKButton) {
         NSArray *fileURLs = [openPanel URLs];
         
-        __block AVAsset *asset = nil;
-        __block NSArray *metadata = nil;
-
         [fileURLs enumerateObjectsUsingBlock:^(NSURL *fileURL, NSUInteger idx, BOOL *stop) {
-                        
-            asset = [AVAsset assetWithURL:fileURL];
-            metadata = [asset commonMetadata];
-            if ([metadata count] == 0) {
-                // Handle warning message here.
-            }
-                        
+            
+            NSDictionary *metadataDict = [[CMMediaManager sharedManagerWithDelegate:self] metadataForKeys:@[@"title", @"artist"] trackAtURL:fileURL];
+            
             [Track newEntity:@"Track" inContext:self.managedObjectContext idAttribute:@"identifier" value:[[NSString alloc] initWithFormat:@"%@%@", [fileURL absoluteString], [NSDate date]] onInsert:^(Track *track) {
                 track.localFileURL = [fileURL path];
                 track.order = @(self.totalNumTracks + (idx + 1));
-                track.length = @(CMTimeGetSeconds(asset.duration));
                 
-                for (AVMetadataItem *item in metadata) {
-                    if ([item.commonKey isEqualToString:@"title"]) {
-                        track.name = item.stringValue;
-                    } else if ([item.commonKey isEqualToString:@"artist"]) {
-                        track.artist = item.stringValue;
-                    }
-                }
+                [metadataDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                    [track setValue:obj forKey:key];
+                }];
             }];
         }];
         
-        [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+        [(CMAppDelegate *)[NSApp delegate] saveAction : nil];
     }
     
     [self refreshData];
@@ -190,39 +129,68 @@ static NSString *DraggedCellIdentifier = @"Track Dragged Cell";
     
     [self refreshData];
     
-    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+    [(CMAppDelegate *)[NSApp delegate] saveAction : nil];
 }
 
-- (IBAction)createCenturion:(id)sender
+- (IBAction)centurion:(id)sender
 {
-    NSSavePanel *savePanel = [NSSavePanel savePanel];
-    savePanel.allowedFileTypes = @[@"m4a"];
-    [savePanel beginSheetModalForWindow:[[self view] window] completionHandler:^(NSInteger result) {
+    if (self.creatingCenturion) {
         
-        if (result == NSFileHandlingPanelOKButton) {
-            self.saveURL = [savePanel URL];
-            
-            [self.progressIndicator startAnimation:self];
-            
-            [self createCenturionMix];
-        }
-    }];
+        [[CMMediaManager sharedManagerWithDelegate:self] cancelCenturionMix];
+        
+        [self.clearSelectionButton setEnabled:YES];
+        [self.addTrackButton setEnabled:YES];
+        [self.centurionButton setTitle:@"Create Centurion"];
+
+        [self.progressIndicator stopAnimation:self];        
+    } else {
+        NSSavePanel *savePanel = [NSSavePanel savePanel];
+        savePanel.allowedFileTypes = @[@"m4a"];
+        [savePanel beginSheetModalForWindow:[[self view] window] completionHandler:^(NSInteger result) {
+            if (result == NSFileHandlingPanelOKButton) {
+                
+                [self.clearSelectionButton setEnabled:NO];
+                [self.addTrackButton setEnabled:NO];
+                [self.centurionButton setTitle:@"Cancel Centurion"];
+                
+                [self.progressIndicator startAnimation:self];
+                
+                [[CMMediaManager sharedManagerWithDelegate:self] createCenturionMixAtURL:[savePanel URL] fromTracks:[self.trackArrayController arrangedObjects] completion:^(BOOL success) {
+                    [self.progressIndicator stopAnimation:self];
+                }];
+            }
+        }];
+    }
+    
+    self.creatingCenturion = !self.creatingCenturion;
+}
+
+#pragma mark - Media delegate
+
+- (void)mediaManager:(CMMediaManager *)mediaManager changedProgressStatus:(double)progress
+{
+    [self.progressIndicator setDoubleValue:progress];
+    
+    if ([self.progressIndicator doubleValue] > 99.0) {
+        [self.progressIndicator stopAnimation:self];
+        [self.progressField setStringValue:@"Complete!"];
+    }
 }
 
 #pragma mark - Table View Logic
 
 - (NSArray *)itemsWithOrderBetween:(NSInteger)lowValue and:(NSInteger)highValue
 {
-	NSPredicate *fetchPredicate = [NSPredicate predicateWithFormat:@"order >= %i && order <= %i", lowValue, highValue];
+    NSPredicate *fetchPredicate = [NSPredicate predicateWithFormat:@"order >= %i && order <= %i", lowValue, highValue];
     
     return [self tracksWithPredicate:fetchPredicate];
 }
 
 - (NSArray *)itemsWithOrderGreaterThanOrEqualTo:(NSInteger)value
 {
-	NSPredicate *fetchPredicate = [NSPredicate predicateWithFormat:@"order >= %i", value];
+    NSPredicate *fetchPredicate = [NSPredicate predicateWithFormat:@"order >= %i", value];
     
-	return [self tracksWithPredicate:fetchPredicate];
+    return [self tracksWithPredicate:fetchPredicate];
 }
 
 - (NSArray *)tracksWithPredicate:(NSPredicate *)predicate
@@ -237,7 +205,7 @@ static NSString *DraggedCellIdentifier = @"Track Dragged Cell";
 - (NSInteger)reorderTracks:(NSArray *)tracks startingAt:(NSInteger)value
 {
     __block NSInteger currentTrack = value;
-        
+    
     if (tracks && ([tracks count] > 0) ) {
         [tracks enumerateObjectsUsingBlock:^(Track *track, NSUInteger idx, BOOL *stop) {
             track.order = @(currentTrack);
@@ -254,9 +222,14 @@ static NSString *DraggedCellIdentifier = @"Track Dragged Cell";
 {
     [self.trackArrayController removeObjectsAtArrangedObjectIndexes:indexSet];
     
-    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+    [(CMAppDelegate *)[NSApp delegate] saveAction : nil];
     
     [self refreshData];
+}
+
+- (BOOL)tableView:(NSTableView *)tableView shouldRespondToDeleteKeyForRowIndexes:(NSIndexSet *)indexSet
+{
+    return !self.creatingCenturion;
 }
 
 - (BOOL)tableView:(NSTableView *)tableView
@@ -264,10 +237,10 @@ writeRowsWithIndexes:(NSIndexSet *)rowIndexes
      toPasteboard:(NSPasteboard *)pboard
 {
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:rowIndexes];
-	[pboard declareTypes:[NSArray arrayWithObject:DraggedCellIdentifier] owner:self];
-	[pboard setData:data forType:DraggedCellIdentifier];
+    [pboard declareTypes:[NSArray arrayWithObject:DraggedCellIdentifier] owner:self];
+    [pboard setData:data forType:DraggedCellIdentifier];
     
-    return ([tableView.selectedRowIndexes count] <= 1);
+    return ([tableView.selectedRowIndexes count] <= 1) && !self.creatingCenturion;
 }
 
 - (NSDragOperation)tableView:(NSTableView *)tableView
@@ -276,8 +249,7 @@ writeRowsWithIndexes:(NSIndexSet *)rowIndexes
        proposedDropOperation:(NSTableViewDropOperation)dropOperation
 {
     if ([[info draggingSource] isEqual:self.tracksTableView]) {
-        if (dropOperation == NSTableViewDropOn)
-            [tableView setDropRow:row dropOperation:NSTableViewDropAbove];
+        if (dropOperation == NSTableViewDropOn) [tableView setDropRow:row dropOperation:NSTableViewDropAbove];
         
         return NSDragOperationMove;
     } else {
@@ -322,96 +294,26 @@ writeRowsWithIndexes:(NSIndexSet *)rowIndexes
     
     [self.trackArrayController rearrangeObjects];
     
-    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+    [(CMAppDelegate *)[NSApp delegate] saveAction : nil];
     
     return YES;
 }
 
-#pragma mark - AVFoundation
+#pragma mark - Window
 
-- (void)createCenturionMix
++ (void)restoreWindowWithIdentifier:(NSString *)identifier
+                              state:(NSCoder *)state
+                  completionHandler:(void (^)(NSWindow *, NSError *))completionHandler
 {
-    dispatch_queue_t exportQueue = dispatch_queue_create("export", NULL);
-	dispatch_async(exportQueue, ^{
-        
-        self.centurionMixComposition = [[AVMutableComposition alloc] init];
-        AVMutableCompositionTrack *compositionAudioTrack = [self.centurionMixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
-        
-        CMTime nextClipStartTime = kCMTimeZero;
-        
-        NSInteger idx = 0;
-        for (Track *track in [self.trackArrayController arrangedObjects]) {
-            AVAsset *asset = [AVAsset assetWithURL:[[NSURL alloc] initFileURLWithPath:track.localFileURL]];
-            
-            nextClipStartTime = [self addAsset:asset
-                                      toTrack:compositionAudioTrack
-                                insertionTime:CMTimeMakeWithSeconds(60, 1)
-                                 withDuration:CMTimeMakeWithSeconds(59, 1)
-                                    startTime:nextClipStartTime idx:idx];
-            
-            AVAsset *beepAsset = [AVAsset assetWithURL:[[NSBundle mainBundle] URLForResource:@"ComputerData" withExtension:@"caf"]];
-            
-            nextClipStartTime = [self addAsset:beepAsset
-                                       toTrack:compositionAudioTrack
-                                 insertionTime:kCMTimeZero
-                                  withDuration:CMTimeMakeWithSeconds(1, 1)
-                                     startTime:nextClipStartTime idx:-1];
-            
-            idx++;
-        }
-                
-        [self exportWithCompletionHandler:^(AVAssetExportSessionStatus status) {
-            [self.progressIndicator stopAnimation:self];
-        } async:YES];
-    });
-}
-
-- (void)exportWithCompletionHandler:(void (^)(AVAssetExportSessionStatus status))completionBlock
-                              async:(BOOL)async
-{
-    self.exportSession = [AVAssetExportSession exportSessionWithAsset:self.centurionMixComposition
-                                                           presetName:AVAssetExportPresetAppleM4A];
+    // Get the window from the window controller,
+    // which is stored as an outlet by the delegate.
+    // Both the app delegate and window controller are
+    // created when the main nib file is loaded.
+    CMAppDelegate *appDelegate = (CMAppDelegate *)[[NSApplication sharedApplication] delegate];
+    NSWindow *mainWindow = appDelegate.window;
     
-    if (async) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self setProgressTimer];
-        });
-    } else {
-        [self setProgressTimer];
-    }
-    
-    // Configure export session, output with all our parameters
-    self.exportSession.outputURL = self.saveURL;
-    self.exportSession.outputFileType = AVFileTypeAppleM4A;
-    
-    // Perform the export
-    [self.exportSession exportAsynchronouslyWithCompletionHandler:^(void){
-        switch (self.exportSession.status) {
-            case AVAssetExportSessionStatusCompleted:
-                NSLog(@"Success!");
-                break;
-            case AVAssetExportSessionStatusFailed:
-                NSLog(@"Failed:%@", self.exportSession.error);
-                break;
-                
-            case AVAssetExportSessionStatusCancelled:
-                NSLog(@"Canceled:%@", self.exportSession.error);
-                break;
-                
-            default:
-                break;
-        }
-        
-        if (completionBlock) {
-            if (async) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    completionBlock(self.exportSession.status);
-                });
-            } else {
-                completionBlock(self.exportSession.status);
-            }
-        }
-    }];
+    // Pass the window to the provided completion handler.
+    completionHandler(mainWindow, nil);
 }
 
 @end

@@ -2,7 +2,7 @@
 //  Track.m
 //  Centurion Maker
 //
-//  Created by Jad Osseiran on 30/05/13.
+//  Created by Jad Osseiran on 31/05/13.
 //  Copyright (c) 2013 Jad. All rights reserved.
 //
 
@@ -16,7 +16,7 @@
 @dynamic identifier;
 @dynamic length;
 @dynamic localFileURL;
-@dynamic name;
+@dynamic title;
 @dynamic order;
 @dynamic tracklist;
 

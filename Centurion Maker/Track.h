@@ -2,7 +2,7 @@
 //  Track.h
 //  Centurion Maker
 //
-//  Created by Jad Osseiran on 30/05/13.
+//  Created by Jad Osseiran on 31/05/13.
 //  Copyright (c) 2013 Jad. All rights reserved.
 //
 
@@ -17,7 +17,7 @@
 @property (nonatomic, retain) NSString * identifier;
 @property (nonatomic, retain) NSNumber * length;
 @property (nonatomic, retain) NSString * localFileURL;
-@property (nonatomic, retain) NSString * name;
+@property (nonatomic, retain) NSString * title;
 @property (nonatomic, retain) NSNumber * order;
 @property (nonatomic, retain) Tracklist *tracklist;
 

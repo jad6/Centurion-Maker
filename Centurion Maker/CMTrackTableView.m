@@ -16,7 +16,11 @@
 {
     unichar key = [[theEvent charactersIgnoringModifiers] characterAtIndex:0];
     if (key == NSDeleteCharacter) {
-        [self.delegate tableView:self didPressDeleteKeyForRowIndexes:self.selectedRowIndexes];
+        if ([self.delegate respondsToSelector:@selector(tableView:shouldRespondToDeleteKeyForRowIndexes:)]
+            && [self.delegate tableView:self shouldRespondToDeleteKeyForRowIndexes:[self selectedRowIndexes]]
+            && [self.delegate respondsToSelector:@selector(tableView:didPressDeleteKeyForRowIndexes:)]) {
+            [self.delegate tableView:self didPressDeleteKeyForRowIndexes:[self selectedRowIndexes]];
+        }
         return;
     }
     

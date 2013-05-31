@@ -10,7 +10,9 @@
 
 @protocol CMTrackTableViewDelegate <NSObject, NSTableViewDelegate>
 
+@optional
 - (void)tableView:(NSTableView *)tableView didPressDeleteKeyForRowIndexes:(NSIndexSet *)indexSet;
+- (BOOL)tableView:(NSTableView *)tableView shouldRespondToDeleteKeyForRowIndexes:(NSIndexSet *)indexSet;
 
 @end
 

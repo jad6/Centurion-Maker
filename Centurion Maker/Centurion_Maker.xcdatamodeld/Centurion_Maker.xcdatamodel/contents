@@ -5,8 +5,8 @@
         <attribute name="identifier" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="length" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="localFileURL" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="order" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="tracklist" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Tracklist" inverseName="tracks" inverseEntity="Tracklist" syncable="YES"/>
     </entity>
     <entity name="Tracklist" representedClassName="Tracklist" syncable="YES">

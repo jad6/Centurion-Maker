@@ -271,7 +271,7 @@
 													</object>
 												</object>
 												<object class="NSTextFieldCell" key="NSDataCell" id="560219464">
-													<int key="NSCellFlags">337641536</int>
+													<int key="NSCellFlags">67108928</int>
 													<int key="NSCellFlags2">2048</int>
 													<string key="NSContents">Text Cell</string>
 													<reference key="NSSupport" ref="331558833"/>
@@ -302,7 +302,7 @@
 													<reference key="NSTextColor" ref="700144387"/>
 												</object>
 												<object class="NSTextFieldCell" key="NSDataCell" id="579233453">
-													<int key="NSCellFlags">69206081</int>
+													<int key="NSCellFlags">67108928</int>
 													<int key="NSCellFlags2">2048</int>
 													<string key="NSContents">Text Cell</string>
 													<reference key="NSSupport" ref="331558833"/>
@@ -336,7 +336,7 @@
 													<reference key="NSTextColor" ref="700144387"/>
 												</object>
 												<object class="NSTextFieldCell" key="NSDataCell" id="584612959">
-													<int key="NSCellFlags">337641536</int>
+													<int key="NSCellFlags">67108928</int>
 													<int key="NSCellFlags2">2048</int>
 													<string key="NSContents">Text Cell</string>
 													<reference key="NSSupport" ref="331558833"/>
@@ -362,7 +362,7 @@
 													<reference key="NSTextColor" ref="700144387"/>
 												</object>
 												<object class="NSTextFieldCell" key="NSDataCell" id="1009371482">
-													<int key="NSCellFlags">337641536</int>
+													<int key="NSCellFlags">67108928</int>
 													<int key="NSCellFlags2">2048</int>
 													<string key="NSContents">Text Cell</string>
 													<reference key="NSSupport" ref="331558833"/>
@@ -388,7 +388,7 @@
 													<reference key="NSTextColor" ref="700144387"/>
 												</object>
 												<object class="NSTextFieldCell" key="NSDataCell" id="488047639">
-													<int key="NSCellFlags">337641536</int>
+													<int key="NSCellFlags">67108928</int>
 													<int key="NSCellFlags2">2048</int>
 													<string key="NSContents">Text Cell</string>
 													<reference key="NSSupport" ref="331558833"/>
@@ -544,14 +544,6 @@
 					<int key="connectionID">32</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">createCenturion:</string>
-						<reference key="source" ref="1001"/>
-						<reference key="destination" ref="981072056"/>
-					</object>
-					<int key="connectionID">33</int>
-				</object>
-				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">numTracksField</string>
 						<reference key="source" ref="1001"/>
@@ -585,14 +577,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">createCenturionButton</string>
-						<reference key="source" ref="1001"/>
-						<reference key="destination" ref="981072056"/>
-					</object>
-					<int key="connectionID">38</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">clearSelectionButton</string>
 						<reference key="source" ref="1001"/>
 						<reference key="destination" ref="88720127"/>
@@ -614,6 +598,22 @@
 						<reference key="destination" ref="303915716"/>
 					</object>
 					<int key="connectionID">96</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">centurionButton</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="981072056"/>
+					</object>
+					<int key="connectionID">100</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">centurion:</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="981072056"/>
+					</object>
+					<int key="connectionID">101</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -681,15 +681,15 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
-						<string key="label">value: arrangedObjects.name</string>
+						<string key="label">value: arrangedObjects.title</string>
 						<reference key="source" ref="611738542"/>
 						<reference key="destination" ref="560845677"/>
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="611738542"/>
 							<reference key="NSDestination" ref="560845677"/>
-							<string key="NSLabel">value: arrangedObjects.name</string>
+							<string key="NSLabel">value: arrangedObjects.title</string>
 							<string key="NSBinding">value</string>
-							<string key="NSKeyPath">arrangedObjects.name</string>
+							<string key="NSKeyPath">arrangedObjects.title</string>
 							<object class="NSDictionary" key="NSOptions">
 								<string key="NS.key.0">NSConditionallySetsEditable</string>
 								<boolean value="NO" key="NS.object.0"/>
@@ -697,7 +697,7 @@
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">84</int>
+					<int key="connectionID">99</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -1463,7 +1463,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">98</int>
+			<int key="maxID">101</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1471,17 +1471,17 @@
 					<string key="className">CMMainViewController</string>
 					<string key="superclassName">NSViewController</string>
 					<dictionary class="NSMutableDictionary" key="actions">
+						<string key="centurion:">id</string>
 						<string key="clearSelectedtracks:">id</string>
-						<string key="createCenturion:">id</string>
 						<string key="selectTracks:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
-						<object class="IBActionInfo" key="clearSelectedtracks:">
-							<string key="name">clearSelectedtracks:</string>
+						<object class="IBActionInfo" key="centurion:">
+							<string key="name">centurion:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="createCenturion:">
-							<string key="name">createCenturion:</string>
+						<object class="IBActionInfo" key="clearSelectedtracks:">
+							<string key="name">clearSelectedtracks:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="selectTracks:">
@@ -1491,8 +1491,8 @@
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="addTrackButton">NSButton</string>
+						<string key="centurionButton">NSButton</string>
 						<string key="clearSelectionButton">NSButton</string>
-						<string key="createCenturionButton">NSButton</string>
 						<string key="numTracksField">NSTextField</string>
 						<string key="progressField">NSTextField</string>
 						<string key="progressIndicator">NSProgressIndicator</string>
@@ -1504,12 +1504,12 @@
 							<string key="name">addTrackButton</string>
 							<string key="candidateClassName">NSButton</string>
 						</object>
-						<object class="IBToOneOutletInfo" key="clearSelectionButton">
-							<string key="name">clearSelectionButton</string>
+						<object class="IBToOneOutletInfo" key="centurionButton">
+							<string key="name">centurionButton</string>
 							<string key="candidateClassName">NSButton</string>
 						</object>
-						<object class="IBToOneOutletInfo" key="createCenturionButton">
-							<string key="name">createCenturionButton</string>
+						<object class="IBToOneOutletInfo" key="clearSelectionButton">
+							<string key="name">clearSelectionButton</string>
 							<string key="candidateClassName">NSButton</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="numTracksField">

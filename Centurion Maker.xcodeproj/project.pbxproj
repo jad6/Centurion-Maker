@@ -12,7 +12,8 @@
 		051AA91C16EF51970095FF6E /* CMMainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 051AA91A16EF51970095FF6E /* CMMainViewController.xib */; };
 		05654C7E1757CACC00C7235F /* NSManagedObject+Appulse.m in Sources */ = {isa = PBXBuildFile; fileRef = 05654C7D1757CACC00C7235F /* NSManagedObject+Appulse.m */; };
 		05654C811757CEE500C7235F /* Tracklist.m in Sources */ = {isa = PBXBuildFile; fileRef = 05654C801757CEE500C7235F /* Tracklist.m */; };
-		05654C871757D58B00C7235F /* Track.m in Sources */ = {isa = PBXBuildFile; fileRef = 05654C861757D58B00C7235F /* Track.m */; };
+		05CBE58C175938BA009B2AC0 /* CMMediaManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 05CBE58B175938BA009B2AC0 /* CMMediaManager.m */; };
+		05CBE58F17593F0A009B2AC0 /* Track.m in Sources */ = {isa = PBXBuildFile; fileRef = 05CBE58E17593F0A009B2AC0 /* Track.m */; };
 		05EC7AB7167AE9660062911E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05EC7AB6167AE9660062911E /* Cocoa.framework */; };
 		05EC7AC1167AE9660062911E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 05EC7ABF167AE9660062911E /* InfoPlist.strings */; };
 		05EC7AC3167AE9660062911E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EC7AC2167AE9660062911E /* main.m */; };
@@ -35,8 +36,10 @@
 		05654C7D1757CACC00C7235F /* NSManagedObject+Appulse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+Appulse.m"; sourceTree = "<group>"; };
 		05654C7F1757CEE500C7235F /* Tracklist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tracklist.h; sourceTree = "<group>"; };
 		05654C801757CEE500C7235F /* Tracklist.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tracklist.m; sourceTree = "<group>"; };
-		05654C851757D58B00C7235F /* Track.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Track.h; sourceTree = "<group>"; };
-		05654C861757D58B00C7235F /* Track.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Track.m; sourceTree = "<group>"; };
+		05CBE58A175938BA009B2AC0 /* CMMediaManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMMediaManager.h; sourceTree = "<group>"; };
+		05CBE58B175938BA009B2AC0 /* CMMediaManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMMediaManager.m; sourceTree = "<group>"; };
+		05CBE58D17593F0A009B2AC0 /* Track.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Track.h; sourceTree = "<group>"; };
+		05CBE58E17593F0A009B2AC0 /* Track.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Track.m; sourceTree = "<group>"; };
 		05EC7AB2167AE9660062911E /* Centurion Maker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Centurion Maker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		05EC7AB6167AE9660062911E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		05EC7AB9167AE9660062911E /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -112,8 +115,8 @@
 		051AA92E16EF6B4D0095FF6E /* Objects */ = {
 			isa = PBXGroup;
 			children = (
-				05654C851757D58B00C7235F /* Track.h */,
-				05654C861757D58B00C7235F /* Track.m */,
+				05CBE58D17593F0A009B2AC0 /* Track.h */,
+				05CBE58E17593F0A009B2AC0 /* Track.m */,
 				05654C7F1757CEE500C7235F /* Tracklist.h */,
 				05654C801757CEE500C7235F /* Tracklist.m */,
 			);
@@ -123,6 +126,8 @@
 		05654C8D1757DA8700C7235F /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				05CBE58A175938BA009B2AC0 /* CMMediaManager.h */,
+				05CBE58B175938BA009B2AC0 /* CMMediaManager.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -265,8 +270,9 @@
 				051AA91B16EF51970095FF6E /* CMMainViewController.m in Sources */,
 				05654C7E1757CACC00C7235F /* NSManagedObject+Appulse.m in Sources */,
 				05654C811757CEE500C7235F /* Tracklist.m in Sources */,
-				05654C871757D58B00C7235F /* Track.m in Sources */,
 				050EA48E175925E600FC905A /* CMTrackTableView.m in Sources */,
+				05CBE58C175938BA009B2AC0 /* CMMediaManager.m in Sources */,
+				05CBE58F17593F0A009B2AC0 /* Track.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
