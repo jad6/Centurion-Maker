@@ -98,7 +98,7 @@ static NSString *DraggedCellIdentifier = @"Track Dragged Cell";
         
         [fileURLs enumerateObjectsUsingBlock:^(NSURL *fileURL, NSUInteger idx, BOOL *stop) {
             
-            NSDictionary *metadataDict = [[CMMediaManager sharedManagerWithDelegate:self] metadataForKeys:@[@"title", @"artist"] trackAtURL:fileURL];
+            NSDictionary *metadataDict = [[CMMediaManager sharedManager] metadataForKeys:@[@"title", @"artist"] trackAtURL:fileURL];
             
             [Track newEntity:@"Track" inContext:self.managedObjectContext idAttribute:@"identifier" value:[[NSString alloc] initWithFormat:@"%@%@", [fileURL absoluteString], [NSDate date]] onInsert:^(Track *track) {
                 track.localFileURL = [fileURL path];
@@ -136,7 +136,7 @@ static NSString *DraggedCellIdentifier = @"Track Dragged Cell";
 {
     if (self.creatingCenturion) {
         
-        [[CMMediaManager sharedManagerWithDelegate:self] cancelCenturionMix];
+        [[CMMediaManager sharedManager] cancelCenturionMix];
         
         [self.clearSelectionButton setEnabled:YES];
         [self.addTrackButton setEnabled:YES];
@@ -155,7 +155,7 @@ static NSString *DraggedCellIdentifier = @"Track Dragged Cell";
                 
                 [self.progressIndicator startAnimation:self];
                 
-                [[CMMediaManager sharedManagerWithDelegate:self] createCenturionMixAtURL:[savePanel URL] fromTracks:[self.trackArrayController arrangedObjects] completion:^(BOOL success) {
+                [[CMMediaManager sharedManager] createCenturionMixAtURL:[savePanel URL] fromTracks:[self.trackArrayController arrangedObjects] delegate:self completion:^(BOOL success) {
                     [self.progressIndicator stopAnimation:self];
                 }];
             }
@@ -299,7 +299,36 @@ writeRowsWithIndexes:(NSIndexSet *)rowIndexes
     return YES;
 }
 
+#pragma mark - NSAlert
+
+- (void)alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
+{
+    if (returnCode == 0) {
+        [[CMMediaManager sharedManager] cancelCenturionMix];
+        [[[self view] window] close];
+    }
+}
+
 #pragma mark - Window
+
+- (BOOL)windowShouldClose:(id)sender
+{
+    if (self.creatingCenturion) {
+        NSAlert *closeAlert = [NSAlert alertWithMessageText:@"Export In Progress" defaultButton:@"No" alternateButton:@"Yes" otherButton:nil informativeTextWithFormat:@"Centurion Maker is in the process of exporting a mix. Are you sure you wish to close the application and cancel the export?"];
+        [closeAlert beginSheetModalForWindow:[[self view] window] modalDelegate:self didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:) contextInfo:nil];
+        
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (void)windowWillClose:(NSNotification *)notification
+{
+    if (self.creatingCenturion) {
+        [[CMMediaManager sharedManager] cancelCenturionMix];
+    }
+}
 
 + (void)restoreWindowWithIdentifier:(NSString *)identifier
                               state:(NSCoder *)state

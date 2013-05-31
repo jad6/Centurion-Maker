@@ -23,14 +23,13 @@
 
 @implementation CMMediaManager
 
-+ (CMMediaManager *)sharedManagerWithDelegate:(id<CMMediaManagerDelegate>)delegate
++ (CMMediaManager *)sharedManager
 {
     static __DISPATCH_ONCE__ CMMediaManager *singletonObject = nil;
     
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         singletonObject = [[self alloc] init];
-        singletonObject.delegate = delegate;
     });
     
     return singletonObject;
@@ -57,11 +56,16 @@
            toTrack:(AVMutableCompositionTrack *)compositionTrack
      insertionTime:(CMTime)insertionTime
       withDuration:(CMTime)duration
-         startTime:(CMTime)startTime idx:(NSInteger)idx
+         startTime:(CMTime)startTime
+          forTrack:(Track *)track
 {
     NSError *error = nil;
     
     NSArray *tracks = [asset tracksWithMediaType:AVMediaTypeAudio];
+    
+    if ([tracks count] == 0) {
+        NSLog(@"Error on track: %@", track);
+    }
     
     AVAssetTrack *clipAudioTrack = [tracks lastObject];
     CMTimeRange timeRangeInAsset = CMTimeRangeMake(insertionTime, duration);
@@ -97,7 +101,6 @@
             default:
                 break;
         }
-        
         
         dispatch_async(dispatch_get_main_queue(), ^{            
             if (completionBlock) {
@@ -141,8 +144,11 @@
 
 - (void)createCenturionMixAtURL:(NSURL *)url
                      fromTracks:(NSArray *)tracks
+                       delegate:(id<CMMediaManagerDelegate>)delegate
                      completion:(void (^)(BOOL success))completionBlock
 {
+    self.delegate = delegate;
+    
     [self startProgressTimer];
 
     dispatch_queue_t exportQueue = dispatch_queue_create("export", NULL);
@@ -153,7 +159,6 @@
         
         CMTime nextClipStartTime = kCMTimeZero;
         
-        NSInteger idx = 0;
         for (Track *track in tracks) {
             AVAsset *asset = [AVAsset assetWithURL:[[NSURL alloc] initFileURLWithPath:track.localFileURL]];
             
@@ -161,7 +166,8 @@
                                        toTrack:compositionAudioTrack
                                  insertionTime:CMTimeMakeWithSeconds(60, 1)
                                   withDuration:CMTimeMakeWithSeconds(59, 1)
-                                     startTime:nextClipStartTime idx:idx];
+                                     startTime:nextClipStartTime
+                                      forTrack:track];
             
             AVAsset *beepAsset = [AVAsset assetWithURL:[[NSBundle mainBundle] URLForResource:@"ComputerData" withExtension:@"caf"]];
             
@@ -169,9 +175,8 @@
                                        toTrack:compositionAudioTrack
                                  insertionTime:kCMTimeZero
                                   withDuration:CMTimeMakeWithSeconds(1, 1)
-                                     startTime:nextClipStartTime idx:-1];
-            
-            idx++;
+                                     startTime:nextClipStartTime
+                                      forTrack:nil];
         }
         
         [self exportToURL:url completion:^(AVAssetExportSessionStatus status) {

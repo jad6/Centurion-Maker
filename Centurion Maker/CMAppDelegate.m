@@ -28,6 +28,7 @@
     self.mainVC = [[CMMainViewController alloc] initWithNibName:@"CMMainViewController" bundle:nil];
     
     [self.window setContentView:self.mainVC.view];
+    [self.window setDelegate:self.mainVC];
     self.mainVC.managedObjectContext = self.managedObjectContext;
 //    self.mainVC.pathToAppSupport = [self applicationFilesDirectory];
 }

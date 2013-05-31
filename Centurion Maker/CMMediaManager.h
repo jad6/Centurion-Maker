@@ -20,12 +20,13 @@
 
 @property (weak, nonatomic) id<CMMediaManagerDelegate> delegate;
 
-+ (CMMediaManager *)sharedManagerWithDelegate:(id<CMMediaManagerDelegate>)delegate;
++ (CMMediaManager *)sharedManager;
 
 - (NSDictionary *)metadataForKeys:(NSArray *)keys trackAtURL:(NSURL *)url;
 
 - (void)createCenturionMixAtURL:(NSURL *)url
                      fromTracks:(NSArray *)tracks
+                       delegate:(id<CMMediaManagerDelegate>)delegate
                      completion:(void (^)(BOOL success))completionBlock;
 
 - (void)cancelCenturionMix;

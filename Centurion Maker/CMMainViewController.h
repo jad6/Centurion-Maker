@@ -10,7 +10,7 @@
 
 @class NSManagedObjectContext;
 
-@interface CMMainViewController : NSViewController
+@interface CMMainViewController : NSViewController <NSWindowDelegate>
 
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
