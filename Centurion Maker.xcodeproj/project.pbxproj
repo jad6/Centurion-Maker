@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		050EA48E175925E600FC905A /* CMTrackTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 050EA48D175925E600FC905A /* CMTrackTableView.m */; };
 		051AA91B16EF51970095FF6E /* CMMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 051AA91916EF51970095FF6E /* CMMainViewController.m */; };
 		051AA91C16EF51970095FF6E /* CMMainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 051AA91A16EF51970095FF6E /* CMMainViewController.xib */; };
 		05654C7E1757CACC00C7235F /* NSManagedObject+Appulse.m in Sources */ = {isa = PBXBuildFile; fileRef = 05654C7D1757CACC00C7235F /* NSManagedObject+Appulse.m */; };
@@ -25,6 +26,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		050EA48C175925E600FC905A /* CMTrackTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMTrackTableView.h; sourceTree = "<group>"; };
+		050EA48D175925E600FC905A /* CMTrackTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMTrackTableView.m; sourceTree = "<group>"; };
 		051AA91816EF51970095FF6E /* CMMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMMainViewController.h; sourceTree = "<group>"; };
 		051AA91916EF51970095FF6E /* CMMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMMainViewController.m; sourceTree = "<group>"; };
 		051AA91A16EF51970095FF6E /* CMMainViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CMMainViewController.xib; sourceTree = "<group>"; };
@@ -67,12 +70,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		050EA48F175925EB00FC905A /* Subclasses */ = {
+			isa = PBXGroup;
+			children = (
+				050EA48C175925E600FC905A /* CMTrackTableView.h */,
+				050EA48D175925E600FC905A /* CMTrackTableView.m */,
+			);
+			name = Subclasses;
+			sourceTree = "<group>";
+		};
 		051AA91716EF51740095FF6E /* GUI */ = {
 			isa = PBXGroup;
 			children = (
 				051AA91816EF51970095FF6E /* CMMainViewController.h */,
 				051AA91916EF51970095FF6E /* CMMainViewController.m */,
 				051AA91A16EF51970095FF6E /* CMMainViewController.xib */,
+				050EA48F175925EB00FC905A /* Subclasses */,
 			);
 			name = GUI;
 			sourceTree = "<group>";
@@ -253,6 +266,7 @@
 				05654C7E1757CACC00C7235F /* NSManagedObject+Appulse.m in Sources */,
 				05654C811757CEE500C7235F /* Tracklist.m in Sources */,
 				05654C871757D58B00C7235F /* Track.m in Sources */,
+				050EA48E175925E600FC905A /* CMTrackTableView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
