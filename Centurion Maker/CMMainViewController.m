@@ -17,7 +17,7 @@
 
 @interface CMMainViewController () <CMTrackTableViewDelegate, NSTableViewDataSource, NSWindowRestoration, CMMediaManagerDelegate>
 
-@property (weak, nonatomic) IBOutlet NSTextField *numTracksField, *progressField;
+@property (weak, nonatomic) IBOutlet NSTextField *numTracksField, *numTracksLeftField, *progressField;
 @property (weak, nonatomic) IBOutlet NSProgressIndicator *progressIndicator;
 @property (weak, nonatomic) IBOutlet NSButton *clearSelectionButton, *centurionButton, *addTrackButton;
 @property (weak, nonatomic) IBOutlet CMTrackTableView *tracksTableView;
@@ -30,6 +30,9 @@
 @end
 
 static NSString *DraggedCellIdentifier = @"Track Dragged Cell";
+
+static NSInteger kCenturionNumTracks = 100;
+static NSInteger kHourOfPowerNumTracks = 60;
 
 @implementation CMMainViewController
 
@@ -77,9 +80,28 @@ static NSString *DraggedCellIdentifier = @"Track Dragged Cell";
 {
     NSInteger trackCount = [Track countInContext:self.managedObjectContext];
     
-    [self.centurionButton setEnabled:(trackCount == 10)];
+    [self.centurionButton setEnabled:((trackCount == kCenturionNumTracks)
+                                      || (trackCount == kHourOfPowerNumTracks))];
     
     [self.numTracksField setStringValue:[[NSString alloc] initWithFormat:@"%li tracks", trackCount]];
+    
+    NSMutableString *trackLeftString = [[NSMutableString alloc] init];
+    NSInteger centurionTracksLeft = kCenturionNumTracks - trackCount;
+    NSInteger hourOfPowerTracksLeft = kHourOfPowerNumTracks - trackCount;
+    if (centurionTracksLeft > 0)
+        [trackLeftString appendFormat:@"%li left for Centurion", centurionTracksLeft];
+    if (centurionTracksLeft > 0 && hourOfPowerTracksLeft > 0)
+        [trackLeftString appendString:@"\n"];
+    if (hourOfPowerTracksLeft > 0)
+        [trackLeftString appendFormat:@"%li left for Hour Of Power", hourOfPowerTracksLeft];
+    [self.numTracksLeftField setStringValue:trackLeftString];
+    
+    NSString *createString = @"Create Mix";
+    if (centurionTracksLeft == 0)
+        createString = @"Create Centurion";
+    if (hourOfPowerTracksLeft == 0)
+        createString = @"Create Hour Of Power";
+    [self.centurionButton setTitle:createString];
     
     self.totalNumTracks = trackCount;
 }
