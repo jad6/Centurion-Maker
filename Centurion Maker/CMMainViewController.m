@@ -77,7 +77,7 @@ static NSString *DraggedCellIdentifier = @"Track Dragged Cell";
 {
     NSInteger trackCount = [Track countInContext:self.managedObjectContext];
     
-    [self.centurionButton setEnabled:(trackCount == 100)];
+    [self.centurionButton setEnabled:(trackCount == 10)];
     
     [self.numTracksField setStringValue:[[NSString alloc] initWithFormat:@"%li tracks", trackCount]];
     
@@ -149,6 +149,8 @@ static NSString *DraggedCellIdentifier = @"Track Dragged Cell";
         [savePanel beginSheetModalForWindow:[[self view] window] completionHandler:^(NSInteger result) {
             if (result == NSFileHandlingPanelOKButton) {
                 
+                self.creatingCenturion = YES;
+                
                 [self.clearSelectionButton setEnabled:NO];
                 [self.addTrackButton setEnabled:NO];
                 [self.centurionButton setTitle:@"Cancel Centurion"];
@@ -156,13 +158,20 @@ static NSString *DraggedCellIdentifier = @"Track Dragged Cell";
                 [self.progressIndicator startAnimation:self];
                 
                 [[CMMediaManager sharedManager] createCenturionMixAtURL:[savePanel URL] fromTracks:[self.trackArrayController arrangedObjects] delegate:self completion:^(BOOL success) {
+                    [self.progressIndicator setDoubleValue:0];
                     [self.progressIndicator stopAnimation:self];
+                    
+                    [self.progressField setStringValue:@"Progress:"];
+                    
+                    [self.clearSelectionButton setEnabled:YES];
+                    [self.addTrackButton setEnabled:YES];
+                    [self.centurionButton setTitle:@"Create Centurion"];
+                    
+                    self.creatingCenturion = NO;
                 }];
             }
         }];
     }
-    
-    self.creatingCenturion = !self.creatingCenturion;
 }
 
 #pragma mark - Media delegate

@@ -14,7 +14,6 @@
 
 @interface CMMediaManager ()
 
-@property (strong, nonatomic) AVMutableComposition *centurionMixComposition;
 @property (strong, nonatomic) AVAssetExportSession *exportSession;
 
 @property (strong, nonatomic) NSTimer *progressIndicatorTimer;
@@ -74,10 +73,11 @@
     return CMTimeAdd(startTime, timeRangeInAsset.duration);
 }
 
-- (void)exportToURL:(NSURL *)url
+- (void)exportComposition:(AVComposition *)composition
+                    toURL:(NSURL *)url
          completion:(void (^)(AVAssetExportSessionStatus status))completionBlock
 {
-    self.exportSession = [AVAssetExportSession exportSessionWithAsset:self.centurionMixComposition
+    self.exportSession = [AVAssetExportSession exportSessionWithAsset:composition
                                                            presetName:AVAssetExportPresetAppleM4A];
     
     // Configure export session, output with all our parameters
@@ -154,8 +154,8 @@
     dispatch_queue_t exportQueue = dispatch_queue_create("export", NULL);
     dispatch_async(exportQueue, ^{
         
-        self.centurionMixComposition = [[AVMutableComposition alloc] init];
-        AVMutableCompositionTrack *compositionAudioTrack = [self.centurionMixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
+        AVMutableComposition *centurionMixComposition = [[AVMutableComposition alloc] init];
+        AVMutableCompositionTrack *compositionAudioTrack = [centurionMixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
         
         CMTime nextClipStartTime = kCMTimeZero;
         
@@ -179,17 +179,19 @@
                                       forTrack:nil];
         }
         
-        [self exportToURL:url completion:^(AVAssetExportSessionStatus status) {
-            [self endProgressTimer];
-
-            BOOL success = (status == AVAssetExportSessionStatusCompleted);
-            
-            [self.delegate mediaManager:self changedProgressStatus:(success) ? 100 : 0];
-            
-            if (completionBlock) {
-                completionBlock(success);
-            }
-        }];
+        [self exportComposition:centurionMixComposition
+                          toURL:url
+                     completion:^(AVAssetExportSessionStatus status) {
+                         [self endProgressTimer];
+                         
+                         BOOL success = (status == AVAssetExportSessionStatusCompleted);
+                         
+                         [self.delegate mediaManager:self changedProgressStatus:(success) ? 100 : 0];
+                         
+                         if (completionBlock) {
+                             completionBlock(success);
+                         }
+                     }];
     });
 }
 
