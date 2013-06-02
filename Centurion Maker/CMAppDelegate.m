@@ -40,6 +40,13 @@
     return YES;
 }
 
+#pragma mark - Menu
+
+- (IBAction)feedback:(id)sender
+{
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"mailto:jad6@icloud.com"]];
+}
+
 #pragma mark - CoreData
 
 // Returns the directory the application uses to store the Core Data store file. This code uses a directory named "com.jad.Centurion_Maker" in the user's Application Support directory.

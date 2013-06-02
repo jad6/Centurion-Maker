@@ -102,11 +102,9 @@
                 break;
         }
         
-        dispatch_async(dispatch_get_main_queue(), ^{            
-            if (completionBlock) {
-                completionBlock(self.exportSession.status);
-            }
-        });
+        if (completionBlock) {
+            completionBlock(self.exportSession.status);
+        }
     }];
 }
 
@@ -114,7 +112,9 @@
 
 - (void)updateProgressIndicator
 {
-    [self.delegate mediaManager:self changedProgressStatus:(100 * self.exportSession.progress)];
+    if ([self.delegate respondsToSelector:@selector(mediaManager:changedProgressStatus:)]) {
+        [self.delegate mediaManager:self changedProgressStatus:(100 * self.exportSession.progress)];
+    }
 }
 
 #pragma mark - Public
@@ -150,7 +150,7 @@
     self.delegate = delegate;
     
     [self startProgressTimer];
-
+    
     dispatch_queue_t exportQueue = dispatch_queue_create("export", NULL);
     dispatch_async(exportQueue, ^{
         
@@ -160,7 +160,7 @@
         CMTime nextClipStartTime = kCMTimeZero;
         
         for (Track *track in tracks) {
-            AVAsset *asset = [AVAsset assetWithURL:[[NSURL alloc] initFileURLWithPath:track.localFileURL]];
+            AVAsset *asset = [AVAsset assetWithURL:[[NSURL alloc] initFileURLWithPath:track.filePath]];
             
             nextClipStartTime = [self addAsset:asset
                                        toTrack:compositionAudioTrack
@@ -182,15 +182,20 @@
         [self exportComposition:centurionMixComposition
                           toURL:url
                      completion:^(AVAssetExportSessionStatus status) {
-                         [self endProgressTimer];
-                         
-                         BOOL success = (status == AVAssetExportSessionStatusCompleted);
-                         
-                         [self.delegate mediaManager:self changedProgressStatus:(success) ? 100 : 0];
-                         
-                         if (completionBlock) {
-                             completionBlock(success);
-                         }
+                         dispatch_async(dispatch_get_main_queue(), ^{
+                             
+                             [self endProgressTimer];
+                             
+                             BOOL success = (status == AVAssetExportSessionStatusCompleted);
+                             
+                             if ([self.delegate respondsToSelector:@selector(mediaManager:changedProgressStatus:)]) {
+                                 [self.delegate mediaManager:self changedProgressStatus:(success) ? 100 : 0];
+                             }
+                             
+                             if (completionBlock) {
+                                 completionBlock(success);
+                             }
+                         });
                      }];
     });
 }

@@ -76,6 +76,32 @@ static NSInteger kHourOfPowerNumTracks = 60;
 
 #pragma mark - Logic
 
+- (NSArray *)invalidTracks
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSMutableArray *nonExistingTracks = [[NSMutableArray alloc] init];
+    [[self.trackArrayController arrangedObjects] enumerateObjectsUsingBlock:^(Track *track, NSUInteger idx, BOOL *stop) {
+        if (![fileManager fileExistsAtPath:track.filePath]) {
+            track.invalid = @(YES);
+            [nonExistingTracks addObject:track];
+        } else {
+            track.invalid = @(NO);
+        }
+    }];
+    
+    if ([nonExistingTracks count] != 0) {
+        [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+        [self.trackArrayController rearrangeObjects];
+        
+        return nonExistingTracks;
+    }
+    
+    // Refresh the table
+    [self.trackArrayController rearrangeObjects];
+    
+    return nil;
+}
+
 - (void)refreshData
 {
     NSInteger trackCount = [Track countInContext:self.managedObjectContext];
@@ -123,8 +149,8 @@ static NSInteger kHourOfPowerNumTracks = 60;
             NSDictionary *metadataDict = [[CMMediaManager sharedManager] metadataForKeys:@[@"title", @"artist"] trackAtURL:fileURL];
             
             [Track newEntity:@"Track" inContext:self.managedObjectContext idAttribute:@"identifier" value:[[NSString alloc] initWithFormat:@"%@%@", [fileURL absoluteString], [NSDate date]] onInsert:^(Track *track) {
-                track.localFileURL = [fileURL path];
-                track.order = @(self.totalNumTracks + (idx + 1));
+                track.filePath = [fileURL path];
+                track.order = @(self.totalNumTracks + idx);
                 
                 [metadataDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
                     [track setValue:obj forKey:key];
@@ -132,7 +158,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
             }];
         }];
         
-        [(CMAppDelegate *)[NSApp delegate] saveAction : nil];
+        [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
     }
     
     [self refreshData];
@@ -151,7 +177,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
     
     [self refreshData];
     
-    [(CMAppDelegate *)[NSApp delegate] saveAction : nil];
+    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
 }
 
 - (IBAction)centurion:(id)sender
@@ -166,33 +192,55 @@ static NSInteger kHourOfPowerNumTracks = 60;
 
         [self.progressIndicator stopAnimation:self];        
     } else {
-        NSSavePanel *savePanel = [NSSavePanel savePanel];
-        savePanel.allowedFileTypes = @[@"m4a"];
-        [savePanel beginSheetModalForWindow:[[self view] window] completionHandler:^(NSInteger result) {
-            if (result == NSFileHandlingPanelOKButton) {
-                
-                self.creatingCenturion = YES;
-                
-                [self.clearSelectionButton setEnabled:NO];
-                [self.addTrackButton setEnabled:NO];
-                [self.centurionButton setTitle:@"Cancel Centurion"];
-                
-                [self.progressIndicator startAnimation:self];
-                
-                [[CMMediaManager sharedManager] createCenturionMixAtURL:[savePanel URL] fromTracks:[self.trackArrayController arrangedObjects] delegate:self completion:^(BOOL success) {
-                    [self.progressIndicator setDoubleValue:0];
-                    [self.progressIndicator stopAnimation:self];
+        NSArray *invalidTracks = [self invalidTracks];
+        
+        if (!invalidTracks) {
+            NSSavePanel *savePanel = [NSSavePanel savePanel];
+            savePanel.allowedFileTypes = @[@"m4a"];
+            [savePanel beginSheetModalForWindow:[[self view] window] completionHandler:^(NSInteger result) {
+                if (result == NSFileHandlingPanelOKButton) {
                     
-                    [self.progressField setStringValue:@"Progress:"];
+                    self.creatingCenturion = YES;
                     
-                    [self.clearSelectionButton setEnabled:YES];
-                    [self.addTrackButton setEnabled:YES];
-                    [self.centurionButton setTitle:@"Create Centurion"];
+                    [self.clearSelectionButton setEnabled:NO];
+                    [self.addTrackButton setEnabled:NO];
+                    [self.centurionButton setTitle:@"Cancel Centurion"];
                     
-                    self.creatingCenturion = NO;
-                }];
-            }
-        }];
+                    [self.progressIndicator startAnimation:self];
+                    
+                    [[CMMediaManager sharedManager] createCenturionMixAtURL:[savePanel URL] fromTracks:[self.trackArrayController arrangedObjects] delegate:self completion:^(BOOL success) {
+                        [self.progressIndicator setDoubleValue:0];
+                        [self.progressIndicator stopAnimation:self];
+                        
+                        [self.progressField setStringValue:@"Progress:"];
+                        
+                        [self.clearSelectionButton setEnabled:YES];
+                        [self.addTrackButton setEnabled:YES];
+                        
+                        self.creatingCenturion = NO;
+                        
+                        [self refreshData];
+                    }];
+                }
+            }];
+        } else {
+            NSAlert *invalidTracksAlert = [NSAlert alertWithMessageText:@"Invalid Tracks" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"There are %li tracks whos original files could not be located. These tracks are highlighted in red. Replace them before creating a mix.", [invalidTracks count]];
+            
+            [invalidTracksAlert runModal];
+        }
+    }
+}
+
+- (IBAction)openInFinder:(id)sender
+{
+    Track *track = [self.trackArrayController arrangedObjects][[self.tracksTableView selectedRow]];
+    
+    if ([track.invalid boolValue]) {
+        NSAlert *alert = [NSAlert alertWithMessageText:@"File Not Found" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"The original file for \"%@\" could not be found.", track.title];
+        [alert runModal];
+    } else {
+        NSArray *fileURLs = @[[[NSURL alloc] initFileURLWithPath:track.filePath]];
+        [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
     }
 }
 
@@ -253,7 +301,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
 {
     [self.trackArrayController removeObjectsAtArrangedObjectIndexes:indexSet];
     
-    [(CMAppDelegate *)[NSApp delegate] saveAction : nil];
+    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
     
     [self refreshData];
 }
@@ -263,9 +311,28 @@ static NSInteger kHourOfPowerNumTracks = 60;
     return !self.creatingCenturion;
 }
 
-- (BOOL)tableView:(NSTableView *)tableView
-writeRowsWithIndexes:(NSIndexSet *)rowIndexes
-     toPasteboard:(NSPasteboard *)pboard
+- (void)tableView:(NSTableView *)tableView
+  willDisplayCell:(id)cell
+   forTableColumn:(NSTableColumn *)tableColumn
+              row:(NSInteger)row
+{
+    Track *track = [self.trackArrayController arrangedObjects][row];
+    if ([track.invalid boolValue]) {
+        if ([tableColumn.identifier isEqualToString:@"Path"]) {
+            [cell setTitle:@"Error"];
+        } else {
+            [cell setTextColor:[NSColor redColor]];
+        }
+    } else {
+        if ([tableColumn.identifier isEqualToString:@"Path"]) {
+            [cell setTitle:@"Show"];
+        } else {
+            [cell setTextColor:[NSColor blackColor]];
+        }
+    }
+}
+
+- (BOOL)tableView:(NSTableView *)tableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard *)pboard
 {
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:rowIndexes];
     [pboard declareTypes:[NSArray arrayWithObject:DraggedCellIdentifier] owner:self];
@@ -322,10 +389,10 @@ writeRowsWithIndexes:(NSIndexSet *)rowIndexes
     currentOrder = [self reorderTracks:startItemsArray startingAt:0];
     currentOrder = [self reorderTracks:draggedItemsArray startingAt:currentOrder];
     currentOrder = [self reorderTracks:endItemsArray startingAt:currentOrder];
+        
+    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
     
     [self.trackArrayController rearrangeObjects];
-    
-    [(CMAppDelegate *)[NSApp delegate] saveAction : nil];
     
     return YES;
 }

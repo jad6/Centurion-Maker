@@ -9,9 +9,11 @@
 #import <Foundation/Foundation.h>
 
 @class CMMediaManager;
+@class Track;
 
 @protocol CMMediaManagerDelegate <NSObject>
 
+@optional
 - (void)mediaManager:(CMMediaManager *)mediaManager changedProgressStatus:(double)progress;
 
 @end
