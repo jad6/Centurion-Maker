@@ -8,6 +8,12 @@
 
 #import "CMTrackTableView.h"
 
+#import "CMAppDelegate.h"
+
+@interface CMTrackTableView ()
+
+@end
+
 @implementation CMTrackTableView
 
 @dynamic delegate;
@@ -25,6 +31,13 @@
     }
     
     [super keyDown:theEvent];
+}
+
+- (void)textDidEndEditing:(NSNotification *)notification
+{
+    [super textDidEndEditing:notification];
+    
+    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
 }
 
 @end

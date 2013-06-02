@@ -11,6 +11,7 @@
 #import "CMAppDelegate.h"
 #import "CMMediaManager.h"
 #import "CMTrackTableView.h"
+#import "CMTimeFormatter.h"
 
 #import "NSManagedObject+Appulse.h"
 #import "Track.h"
@@ -143,20 +144,48 @@ static NSInteger kHourOfPowerNumTracks = 60;
     NSDocumentController *documentController = [NSDocumentController sharedDocumentController];
     if ([documentController runModalOpenPanel:openPanel forTypes:@[@"mp3", @"m4a"]] == NSOKButton) {
         NSArray *fileURLs = [openPanel URLs];
+        NSMutableArray *tooShortTrackNames = [[NSMutableArray alloc] init];
         
         [fileURLs enumerateObjectsUsingBlock:^(NSURL *fileURL, NSUInteger idx, BOOL *stop) {
             
             NSDictionary *metadataDict = [[CMMediaManager sharedManager] metadataForKeys:@[@"title", @"artist"] trackAtURL:fileURL];
             
-            [Track newEntity:@"Track" inContext:self.managedObjectContext idAttribute:@"identifier" value:[[NSString alloc] initWithFormat:@"%@%@", [fileURL absoluteString], [NSDate date]] onInsert:^(Track *track) {
-                track.filePath = [fileURL path];
-                track.order = @(self.totalNumTracks + idx);
-                
-                [metadataDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-                    [track setValue:obj forKey:key];
+            if ([metadataDict[@"length"] doubleValue] < 60) {
+                [tooShortTrackNames addObject:metadataDict[@"title"]];
+            } else {
+                [Track newEntity:@"Track" inContext:self.managedObjectContext idAttribute:@"identifier" value:[[NSString alloc] initWithFormat:@"%@%@", [fileURL absoluteString], [NSDate date]] onInsert:^(Track *track) {
+                    track.filePath = [fileURL path];
+                    track.order = @(self.totalNumTracks + idx);
+                    
+                    [metadataDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                        [track setValue:obj forKey:key];
+                    }];
                 }];
-            }];
+            }
         }];
+        
+        if ([tooShortTrackNames count] != 0) {
+            NSString *message = nil;
+            
+            if ([tooShortTrackNames count] < 5) {
+                NSMutableString *trackNames = [[NSMutableString alloc] init];
+                
+                [tooShortTrackNames enumerateObjectsUsingBlock:^(NSString *name, NSUInteger idx, BOOL *stop) {
+                    if (idx == 0) {
+                        [trackNames appendFormat:@"\n\"%@\"\n", name];
+                    } else {
+                        [trackNames appendFormat:@"\"%@\"\n", name];
+                    }
+                }];
+                
+                message = [[NSString alloc] initWithFormat:@"These tracks:%@are shorter than a minute. They have not been added to the list.", trackNames];
+            } else {
+                message = [[NSString alloc] initWithFormat:@"There are %li tracks which are shorter than a minute. They have not been added to the list.", [tooShortTrackNames count]];
+            }
+            
+            NSAlert *tooShortAlert = [NSAlert alertWithMessageText:@"Track Duration Error" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"%@", message];
+            [tooShortAlert runModal];
+        }
         
         [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
     }
@@ -295,11 +324,15 @@ static NSInteger kHourOfPowerNumTracks = 60;
     return currentTrack;
 }
 
-#pragma mark - NSTableView
+#pragma mark - Tracks Table view
 
 - (void)tableView:(NSTableView *)tableView didPressDeleteKeyForRowIndexes:(NSIndexSet *)indexSet
 {
     [self.trackArrayController removeObjectsAtArrangedObjectIndexes:indexSet];
+    
+    [self reorderTracks:[self.trackArrayController arrangedObjects] startingAt:0];
+    
+    [tableView deselectAll:nil];
     
     [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
     
@@ -310,6 +343,8 @@ static NSInteger kHourOfPowerNumTracks = 60;
 {
     return !self.creatingCenturion;
 }
+
+#pragma mark - Table view
 
 - (void)tableView:(NSTableView *)tableView
   willDisplayCell:(id)cell
@@ -329,6 +364,12 @@ static NSInteger kHourOfPowerNumTracks = 60;
         } else {
             [cell setTextColor:[NSColor blackColor]];
         }
+    }
+    
+    if ([tableColumn.identifier isEqualToString:@"Mix Start"]) {
+        CMTimeFormatter *formatter = [[CMTimeFormatter alloc] init];
+        formatter.maxSecondsValue = ([track.length integerValue] - 60);
+        [cell setFormatter:formatter];
     }
 }
 

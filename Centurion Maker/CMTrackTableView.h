@@ -11,6 +11,8 @@
 @protocol CMTrackTableViewDelegate <NSObject, NSTableViewDelegate>
 
 @optional
+- (void)tableView:(NSTableView *)tableView didInputValidStartTime:(double)startTime atRowIndex:(NSUInteger *)row;
+
 - (void)tableView:(NSTableView *)tableView didPressDeleteKeyForRowIndexes:(NSIndexSet *)indexSet;
 - (BOOL)tableView:(NSTableView *)tableView shouldRespondToDeleteKeyForRowIndexes:(NSIndexSet *)indexSet;
 

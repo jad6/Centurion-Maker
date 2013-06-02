@@ -18,5 +18,6 @@
 @dynamic order;
 @dynamic title;
 @dynamic invalid;
+@dynamic mixStartTime;
 
 @end

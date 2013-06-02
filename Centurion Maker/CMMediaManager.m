@@ -164,7 +164,7 @@
             
             nextClipStartTime = [self addAsset:asset
                                        toTrack:compositionAudioTrack
-                                 insertionTime:CMTimeMakeWithSeconds(60, 1)
+                                 insertionTime:CMTimeMakeWithSeconds([track.mixStartTime integerValue], 1)
                                   withDuration:CMTimeMakeWithSeconds(59, 1)
                                      startTime:nextClipStartTime
                                       forTrack:track];

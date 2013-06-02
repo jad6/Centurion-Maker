@@ -8,6 +8,8 @@
 
 #import "CMTrackDurationTransformer.h"
 
+#import "DurationFormat.h"
+
 @implementation CMTrackDurationTransformer
 
 + (Class)transformedValueClass
@@ -20,23 +22,16 @@
     if (!value) {
         return nil;
     } else {
-        NSInteger seconds = [value integerValue];
-        
-        NSInteger formattedSeconds = (seconds % 60);
-        NSInteger formattedMinutes = (seconds / 60);
-        
-        // Make sure that the seconds are in order of 2 decimals
-        NSString *extraZeroString = @"";
-        if (formattedSeconds < 10) {
-            formattedSeconds *= 10;
-            
-            if (formattedSeconds == 0) {
-                extraZeroString = @"0";
-            }
-        }
+        return [value stringTrackDuration];
+    }
+}
 
-        
-        return [[NSString alloc] initWithFormat:@"%li:%li%@", formattedMinutes, formattedSeconds, extraZeroString];
+- (id)reverseTransformedValue:(id)value
+{
+    if (!value) {
+        return @(0);
+    } else {
+        return [value numberTrackDuration];
     }
 }
 

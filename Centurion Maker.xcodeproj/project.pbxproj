@@ -12,7 +12,8 @@
 		051AA91C16EF51970095FF6E /* CMMainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 051AA91A16EF51970095FF6E /* CMMainViewController.xib */; };
 		05356129175A8B9C00243BD2 /* CMTrackDurationTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 05356128175A8B9C00243BD2 /* CMTrackDurationTransformer.m */; };
 		0535612C175A8CD400243BD2 /* CMTrackOrderTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0535612B175A8CD400243BD2 /* CMTrackOrderTransformer.m */; };
-		055424C4175BC27D0062080A /* Track.m in Sources */ = {isa = PBXBuildFile; fileRef = 055424C3175BC27D0062080A /* Track.m */; };
+		055424CD175BCD8E0062080A /* Track.m in Sources */ = {isa = PBXBuildFile; fileRef = 055424CC175BCD8E0062080A /* Track.m */; };
+		055424D0175BD95E0062080A /* CMTimeFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 055424CF175BD95E0062080A /* CMTimeFormatter.m */; };
 		05654C7E1757CACC00C7235F /* NSManagedObject+Appulse.m in Sources */ = {isa = PBXBuildFile; fileRef = 05654C7D1757CACC00C7235F /* NSManagedObject+Appulse.m */; };
 		05CBE58C175938BA009B2AC0 /* CMMediaManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 05CBE58B175938BA009B2AC0 /* CMMediaManager.m */; };
 		05EC7AB7167AE9660062911E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05EC7AB6167AE9660062911E /* Cocoa.framework */; };
@@ -25,6 +26,8 @@
 		05EC7ADC167AE9B50062911E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05EC7ADB167AE9B50062911E /* AVFoundation.framework */; };
 		05EC7ADE167AE9BB0062911E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05EC7ADD167AE9BB0062911E /* CoreMedia.framework */; };
 		05EC7AF0167B29090062911E /* ComputerData.caf in Resources */ = {isa = PBXBuildFile; fileRef = 05EC7AEF167B29090062911E /* ComputerData.caf */; };
+		05F406DA175BFDC2009FCE81 /* NSNumber+DurationFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 05F406D9175BFDC2009FCE81 /* NSNumber+DurationFormat.m */; };
+		05F406DD175BFE7F009FCE81 /* NSString+DurationFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 05F406DC175BFE7F009FCE81 /* NSString+DurationFormat.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,8 +40,10 @@
 		05356128175A8B9C00243BD2 /* CMTrackDurationTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMTrackDurationTransformer.m; sourceTree = "<group>"; };
 		0535612A175A8CD400243BD2 /* CMTrackOrderTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMTrackOrderTransformer.h; sourceTree = "<group>"; };
 		0535612B175A8CD400243BD2 /* CMTrackOrderTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMTrackOrderTransformer.m; sourceTree = "<group>"; };
-		055424C2175BC27D0062080A /* Track.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Track.h; sourceTree = "<group>"; };
-		055424C3175BC27D0062080A /* Track.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Track.m; sourceTree = "<group>"; };
+		055424CB175BCD8E0062080A /* Track.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Track.h; sourceTree = "<group>"; };
+		055424CC175BCD8E0062080A /* Track.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Track.m; sourceTree = "<group>"; };
+		055424CE175BD95E0062080A /* CMTimeFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMTimeFormatter.h; sourceTree = "<group>"; };
+		055424CF175BD95E0062080A /* CMTimeFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMTimeFormatter.m; sourceTree = "<group>"; };
 		05654C7C1757CACC00C7235F /* NSManagedObject+Appulse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+Appulse.h"; sourceTree = "<group>"; };
 		05654C7D1757CACC00C7235F /* NSManagedObject+Appulse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+Appulse.m"; sourceTree = "<group>"; };
 		05CBE58A175938BA009B2AC0 /* CMMediaManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMMediaManager.h; sourceTree = "<group>"; };
@@ -60,6 +65,11 @@
 		05EC7ADB167AE9B50062911E /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		05EC7ADD167AE9BB0062911E /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		05EC7AEF167B29090062911E /* ComputerData.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ComputerData.caf; sourceTree = "<group>"; };
+		05F406D8175BFDC2009FCE81 /* NSNumber+DurationFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNumber+DurationFormat.h"; sourceTree = "<group>"; };
+		05F406D9175BFDC2009FCE81 /* NSNumber+DurationFormat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSNumber+DurationFormat.m"; sourceTree = "<group>"; };
+		05F406DB175BFE7F009FCE81 /* NSString+DurationFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+DurationFormat.h"; sourceTree = "<group>"; };
+		05F406DC175BFE7F009FCE81 /* NSString+DurationFormat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+DurationFormat.m"; sourceTree = "<group>"; };
+		05F406DE175BFEB6009FCE81 /* DurationFormat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DurationFormat.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +91,8 @@
 			children = (
 				050EA48C175925E600FC905A /* CMTrackTableView.h */,
 				050EA48D175925E600FC905A /* CMTrackTableView.m */,
+				055424CE175BD95E0062080A /* CMTimeFormatter.h */,
+				055424CF175BD95E0062080A /* CMTimeFormatter.m */,
 			);
 			name = Subclasses;
 			sourceTree = "<group>";
@@ -119,8 +131,8 @@
 		051AA92E16EF6B4D0095FF6E /* Objects */ = {
 			isa = PBXGroup;
 			children = (
-				055424C2175BC27D0062080A /* Track.h */,
-				055424C3175BC27D0062080A /* Track.m */,
+				055424CB175BCD8E0062080A /* Track.h */,
+				055424CC175BCD8E0062080A /* Track.m */,
 			);
 			name = Objects;
 			sourceTree = "<group>";
@@ -189,6 +201,7 @@
 				05EC7AC8167AE9660062911E /* CMAppDelegate.h */,
 				05EC7AC9167AE9660062911E /* CMAppDelegate.m */,
 				05EC7ACB167AE9660062911E /* MainMenu.xib */,
+				05F406D7175BFD98009FCE81 /* Others */,
 				05654C8D1757DA8700C7235F /* Model */,
 				051AA91716EF51740095FF6E /* GUI */,
 				051AA91D16EF51A30095FF6E /* CoreData */,
@@ -208,6 +221,18 @@
 				05EC7AC5167AE9660062911E /* Credits.rtf */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		05F406D7175BFD98009FCE81 /* Others */ = {
+			isa = PBXGroup;
+			children = (
+				05F406DE175BFEB6009FCE81 /* DurationFormat.h */,
+				05F406D8175BFDC2009FCE81 /* NSNumber+DurationFormat.h */,
+				05F406D9175BFDC2009FCE81 /* NSNumber+DurationFormat.m */,
+				05F406DB175BFE7F009FCE81 /* NSString+DurationFormat.h */,
+				05F406DC175BFE7F009FCE81 /* NSString+DurationFormat.m */,
+			);
+			name = Others;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -286,7 +311,10 @@
 				05CBE58C175938BA009B2AC0 /* CMMediaManager.m in Sources */,
 				05356129175A8B9C00243BD2 /* CMTrackDurationTransformer.m in Sources */,
 				0535612C175A8CD400243BD2 /* CMTrackOrderTransformer.m in Sources */,
-				055424C4175BC27D0062080A /* Track.m in Sources */,
+				055424CD175BCD8E0062080A /* Track.m in Sources */,
+				055424D0175BD95E0062080A /* CMTimeFormatter.m in Sources */,
+				05F406DA175BFDC2009FCE81 /* NSNumber+DurationFormat.m in Sources */,
+				05F406DD175BFE7F009FCE81 /* NSString+DurationFormat.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
