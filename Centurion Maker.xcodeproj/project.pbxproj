@@ -28,6 +28,8 @@
 		05EC7AF0167B29090062911E /* ComputerData.caf in Resources */ = {isa = PBXBuildFile; fileRef = 05EC7AEF167B29090062911E /* ComputerData.caf */; };
 		05F406DA175BFDC2009FCE81 /* NSNumber+DurationFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 05F406D9175BFDC2009FCE81 /* NSNumber+DurationFormat.m */; };
 		05F406DD175BFE7F009FCE81 /* NSString+DurationFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 05F406DC175BFE7F009FCE81 /* NSString+DurationFormat.m */; };
+		05F406E1175C1524009FCE81 /* NSPopover+Message.m in Sources */ = {isa = PBXBuildFile; fileRef = 05F406DF175C1524009FCE81 /* NSPopover+Message.m */; };
+		05F406E2175C1524009FCE81 /* NSString+Size.m in Sources */ = {isa = PBXBuildFile; fileRef = 05F406E0175C1524009FCE81 /* NSString+Size.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,6 +72,10 @@
 		05F406DB175BFE7F009FCE81 /* NSString+DurationFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+DurationFormat.h"; sourceTree = "<group>"; };
 		05F406DC175BFE7F009FCE81 /* NSString+DurationFormat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+DurationFormat.m"; sourceTree = "<group>"; };
 		05F406DE175BFEB6009FCE81 /* DurationFormat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DurationFormat.h; sourceTree = "<group>"; };
+		05F406DF175C1524009FCE81 /* NSPopover+Message.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSPopover+Message.m"; sourceTree = "<group>"; };
+		05F406E0175C1524009FCE81 /* NSString+Size.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Size.m"; sourceTree = "<group>"; };
+		05F406E3175C152F009FCE81 /* NSPopover+Message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSPopover+Message.h"; sourceTree = "<group>"; };
+		05F406E4175C152F009FCE81 /* NSString+Size.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Size.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,8 +97,6 @@
 			children = (
 				050EA48C175925E600FC905A /* CMTrackTableView.h */,
 				050EA48D175925E600FC905A /* CMTrackTableView.m */,
-				055424CE175BD95E0062080A /* CMTimeFormatter.h */,
-				055424CF175BD95E0062080A /* CMTimeFormatter.m */,
 			);
 			name = Subclasses;
 			sourceTree = "<group>";
@@ -151,6 +155,8 @@
 		05654C8D1757DA8700C7235F /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				055424CE175BD95E0062080A /* CMTimeFormatter.h */,
+				055424CF175BD95E0062080A /* CMTimeFormatter.m */,
 				05CBE58A175938BA009B2AC0 /* CMMediaManager.h */,
 				05CBE58B175938BA009B2AC0 /* CMMediaManager.m */,
 			);
@@ -205,6 +211,7 @@
 				05654C8D1757DA8700C7235F /* Model */,
 				051AA91716EF51740095FF6E /* GUI */,
 				051AA91D16EF51A30095FF6E /* CoreData */,
+				05F406E5175C1536009FCE81 /* 3rd Party */,
 				051AA91E16EF51AD0095FF6E /* Resources */,
 				05EC7ABD167AE9660062911E /* Supporting Files */,
 			);
@@ -233,6 +240,17 @@
 				05F406DC175BFE7F009FCE81 /* NSString+DurationFormat.m */,
 			);
 			name = Others;
+			sourceTree = "<group>";
+		};
+		05F406E5175C1536009FCE81 /* 3rd Party */ = {
+			isa = PBXGroup;
+			children = (
+				05F406E3175C152F009FCE81 /* NSPopover+Message.h */,
+				05F406DF175C1524009FCE81 /* NSPopover+Message.m */,
+				05F406E4175C152F009FCE81 /* NSString+Size.h */,
+				05F406E0175C1524009FCE81 /* NSString+Size.m */,
+			);
+			name = "3rd Party";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -315,6 +333,8 @@
 				055424D0175BD95E0062080A /* CMTimeFormatter.m in Sources */,
 				05F406DA175BFDC2009FCE81 /* NSNumber+DurationFormat.m in Sources */,
 				05F406DD175BFE7F009FCE81 /* NSString+DurationFormat.m in Sources */,
+				05F406E1175C1524009FCE81 /* NSPopover+Message.m in Sources */,
+				05F406E2175C1524009FCE81 /* NSString+Size.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -14,18 +14,29 @@
 
 @property (strong, nonatomic) NSMutableCharacterSet *legalCharacterSet;
 
+@property (nonatomic) NSUInteger numInvalidTries;
+
 @end
 
 @implementation CMTimeFormatter
 
-- (id)init
+- (id)initWithDelegate:(id<CMTimeFormatterDelegate>)delegate
 {
     self = [super init];
     if (self) {
         self.legalCharacterSet = [NSMutableCharacterSet decimalDigitCharacterSet];
         [self.legalCharacterSet addCharactersInString:@":"];
+        self.delegate = delegate;
     }
     return self;
+}
+
+- (void)recordInvalidAttempt
+{
+    self.numInvalidTries++;
+    
+    if ([self.delegate respondsToSelector:@selector(timeFormatter:enteredInvalidData:)])
+        [self.delegate timeFormatter:self enteredInvalidData:self.numInvalidTries];
 }
 
 - (BOOL)getObjectValue:(id *)object
@@ -51,20 +62,31 @@
         
         if ([[*partialStringPtr componentsSeparatedByString:@":"] count] > 2
             || [*partialStringPtr isEqualToString:@":"]) {
+            [self recordInvalidAttempt];
             return NO;
         }
         
         if ([*partialStringPtr rangeOfString:@":"].location != NSNotFound) {
-            if ([*partialStringPtr secondsComponent] >= 60)
+            if ([*partialStringPtr secondsComponent] >= 60) {
+                [self recordInvalidAttempt];
                 return NO;
-            if ([[*partialStringPtr componentsSeparatedByString:@":"][1] length] > 2)
+            }
+            
+            if ([[*partialStringPtr componentsSeparatedByString:@":"][1] length] > 2) {
+                [self recordInvalidAttempt];
                 return NO;
+            }
         }
-                
-        double startTime = [[*partialStringPtr numberTrackDuration] doubleValue];
-        return startTime <= self.maxSecondsValue;
+        
+        if ([[*partialStringPtr numberTrackDuration] doubleValue] <= self.maxSecondsValue) {
+            return YES;
+        } else {
+            [self recordInvalidAttempt];
+            return NO;
+        }
     }
 
+    [self recordInvalidAttempt];
     return NO;
 }
 

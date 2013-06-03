@@ -13,10 +13,11 @@
 #import "CMTrackTableView.h"
 #import "CMTimeFormatter.h"
 
+#import "NSPopover+Message.h"
 #import "NSManagedObject+Appulse.h"
 #import "Track.h"
 
-@interface CMMainViewController () <CMTrackTableViewDelegate, NSTableViewDataSource, NSWindowRestoration, CMMediaManagerDelegate>
+@interface CMMainViewController () <CMTrackTableViewDelegate, NSTableViewDataSource, NSWindowRestoration, CMMediaManagerDelegate, CMTimeFormatterDelegate>
 
 @property (weak, nonatomic) IBOutlet NSTextField *numTracksField, *numTracksLeftField, *progressField;
 @property (weak, nonatomic) IBOutlet NSProgressIndicator *progressIndicator;
@@ -76,6 +77,21 @@ static NSInteger kHourOfPowerNumTracks = 60;
 }
 
 #pragma mark - Logic
+
+- (void)resetState
+{
+    [self.progressIndicator setDoubleValue:0];
+    [self.progressIndicator stopAnimation:self];
+    
+    [self.progressField setStringValue:@"Progress:"];
+    
+    [self.clearSelectionButton setEnabled:YES];
+    [self.addTrackButton setEnabled:YES];
+    
+    self.creatingCenturion = NO;
+    
+    [self refreshData];
+}
 
 - (NSArray *)invalidTracks
 {
@@ -238,17 +254,13 @@ static NSInteger kHourOfPowerNumTracks = 60;
                     [self.progressIndicator startAnimation:self];
                     
                     [[CMMediaManager sharedManager] createCenturionMixAtURL:[savePanel URL] fromTracks:[self.trackArrayController arrangedObjects] delegate:self completion:^(BOOL success) {
-                        [self.progressIndicator setDoubleValue:0];
-                        [self.progressIndicator stopAnimation:self];
                         
-                        [self.progressField setStringValue:@"Progress:"];
+                        if (success) {
+                            NSAlert *completeAlert = [NSAlert alertWithMessageText:@"Mix Completed!" defaultButton:@"Yay!" alternateButton:nil otherButton:nil informativeTextWithFormat:@"The mix has been created successfully."];
+                            [completeAlert runModal];
+                        }
                         
-                        [self.clearSelectionButton setEnabled:YES];
-                        [self.addTrackButton setEnabled:YES];
-                        
-                        self.creatingCenturion = NO;
-                        
-                        [self refreshData];
+                        [self resetState];
                     }];
                 }
             }];
@@ -270,6 +282,22 @@ static NSInteger kHourOfPowerNumTracks = 60;
     } else {
         NSArray *fileURLs = @[[[NSURL alloc] initFileURLWithPath:track.filePath]];
         [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
+    }
+}
+
+#pragma mark - Formatter delegate
+
+- (void)timeFormatter:(CMTimeFormatter *)timeFormatter
+   enteredInvalidData:(NSUInteger)numInvalidTries
+{
+    if ((numInvalidTries % 3) == 0) {
+        CGRect frame = [self.tracksTableView frameOfCellAtColumn:4
+                                                             row:[self.tracksTableView selectedRow]];
+        [NSPopover showRelativeToRect:frame
+                               ofView:self.tracksTableView
+                        preferredEdge:NSMaxXEdge
+                               string:@"The mix start time must be at least a minute before the track's end time."
+                             maxWidth:250.0];
     }
 }
 
@@ -367,7 +395,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
     }
     
     if ([tableColumn.identifier isEqualToString:@"Mix Start"]) {
-        CMTimeFormatter *formatter = [[CMTimeFormatter alloc] init];
+        CMTimeFormatter *formatter = [[CMTimeFormatter alloc] initWithDelegate:self];
         formatter.maxSecondsValue = ([track.length integerValue] - 60);
         [cell setFormatter:formatter];
     }

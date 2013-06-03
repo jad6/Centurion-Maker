@@ -8,8 +8,21 @@
 
 #import <Foundation/Foundation.h>
 
+@class CMTimeFormatter;
+
+@protocol CMTimeFormatterDelegate <NSObject>
+
+- (void)timeFormatter:(CMTimeFormatter *)timeFormatter
+   enteredInvalidData:(NSUInteger)numInvalidTries;
+
+@end
+
 @interface CMTimeFormatter : NSFormatter
 
+@property (weak, nonatomic) id<CMTimeFormatterDelegate> delegate;
+
 @property (nonatomic) NSInteger maxSecondsValue;
+
+- (id)initWithDelegate:(id<CMTimeFormatterDelegate>)delegate;
 
 @end
