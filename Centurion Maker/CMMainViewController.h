@@ -14,4 +14,6 @@
 
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
+- (void)handleFirstRunOnLaunch;
+
 @end

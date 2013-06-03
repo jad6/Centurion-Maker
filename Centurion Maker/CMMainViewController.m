@@ -17,6 +17,8 @@
 #import "NSManagedObject+Appulse.h"
 #import "Track.h"
 
+#define FIRST_RUN_KEY @"CMFirstRun"
+
 @interface CMMainViewController () <CMTrackTableViewDelegate, NSTableViewDataSource, NSWindowRestoration, CMMediaManagerDelegate, CMTimeFormatterDelegate>
 
 @property (weak, nonatomic) IBOutlet NSTextField *numTracksField, *numTracksLeftField, *progressField;
@@ -53,6 +55,42 @@ static NSInteger kHourOfPowerNumTracks = 60;
     [super loadView];
     
     [self.tracksTableView registerForDraggedTypes:@[DraggedCellIdentifier]];
+}
+
+#pragma mark - First Run
+
+- (void)handleFirstRunOnLaunch
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    
+    if (![defaults valueForKey:FIRST_RUN_KEY]
+        || [[defaults valueForKey:FIRST_RUN_KEY] boolValue]) {
+        [NSPopover showRelativeToRect:[self.addTrackButton frame]
+                               ofView:[self view]
+                        preferredEdge:CGRectMaxXEdge
+                               string:@"Welcome! Get started by adding tracks into the mix. You can add mutliple batches to make up to 60 or 100 tracks."
+                             maxWidth:260.0];
+    }
+}
+
+- (void)handleFirstRunTracksAdded
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    
+    if (![defaults valueForKey:FIRST_RUN_KEY]
+        || [[defaults valueForKey:FIRST_RUN_KEY] boolValue]) {
+        CGRect frame = [self.tracksTableView frameOfCellAtColumn:2
+                                                             row:0];
+        
+        [NSPopover showRelativeToRect:frame
+                               ofView:self.tracksTableView
+                        preferredEdge:CGRectMinYEdge
+                               string:@"You can re-order the tracks before creating the mix. Also you can set the starting time of a track to be included in the mix by editing the \"Mix Start\" column"
+                             maxWidth:300.0];
+        
+        [defaults setValue:@(NO) forKey:FIRST_RUN_KEY];
+        [defaults synchronize];
+    }
 }
 
 #pragma mark - Setters
@@ -132,11 +170,17 @@ static NSInteger kHourOfPowerNumTracks = 60;
     NSInteger centurionTracksLeft = kCenturionNumTracks - trackCount;
     NSInteger hourOfPowerTracksLeft = kHourOfPowerNumTracks - trackCount;
     if (centurionTracksLeft > 0)
-        [trackLeftString appendFormat:@"%li left for Centurion", centurionTracksLeft];
-    if (centurionTracksLeft > 0 && hourOfPowerTracksLeft > 0)
-        [trackLeftString appendString:@"\n"];
+        [trackLeftString appendFormat:@"Add %li for Centurion", centurionTracksLeft];
+    else
+        [trackLeftString appendFormat:@"Remove %li for Centurion", ABS(centurionTracksLeft)];
+    
+    [trackLeftString appendString:@"\n"];
+    
     if (hourOfPowerTracksLeft > 0)
-        [trackLeftString appendFormat:@"%li left for Hour Of Power", hourOfPowerTracksLeft];
+        [trackLeftString appendFormat:@"Add %li for Hour Of Power", hourOfPowerTracksLeft];
+    else
+        [trackLeftString appendFormat:@"Remove %li for Hour Of Power", ABS(hourOfPowerTracksLeft)];
+        
     [self.numTracksLeftField setStringValue:trackLeftString];
     
     NSString *createString = @"Create Mix";
@@ -201,8 +245,10 @@ static NSInteger kHourOfPowerNumTracks = 60;
             
             NSAlert *tooShortAlert = [NSAlert alertWithMessageText:@"Track Duration Error" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"%@", message];
             [tooShortAlert runModal];
+        } else {
+            [self handleFirstRunTracksAdded];
         }
-        
+                
         [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
     }
     
@@ -477,6 +523,11 @@ static NSInteger kHourOfPowerNumTracks = 60;
 }
 
 #pragma mark - Window
+
+- (void)windowDidBecomeMain:(NSNotification *)notification
+{
+    [self handleFirstRunOnLaunch];
+}
 
 - (BOOL)windowShouldClose:(id)sender
 {

@@ -47,6 +47,17 @@
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"mailto:jad6@icloud.com"]];
 }
 
+- (IBAction)resetFirstSteps:(id)sender
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    
+    [defaults setValue:@(YES) forKey:@"CMFirstRun"];
+    
+    [defaults synchronize];
+    
+    [self.mainVC handleFirstRunOnLaunch];
+}
+
 #pragma mark - CoreData
 
 // Returns the directory the application uses to store the Core Data store file. This code uses a directory named "com.jad.Centurion_Maker" in the user's Application Support directory.
