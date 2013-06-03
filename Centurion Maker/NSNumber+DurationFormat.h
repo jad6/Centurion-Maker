@@ -10,6 +10,6 @@
 
 @interface NSNumber (DurationFormat)
 
-- (NSString *)stringTrackDuration;
+- (NSString *)stringTrackDurationForInput:(BOOL)input;
 
 @end

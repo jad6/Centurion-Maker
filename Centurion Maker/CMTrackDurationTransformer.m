@@ -22,7 +22,7 @@
     if (!value) {
         return nil;
     } else {
-        return [value stringTrackDuration];
+        return [value stringTrackDurationForInput:NO];
     }
 }
 

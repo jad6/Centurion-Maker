@@ -13,6 +13,7 @@
 #import "CMTrackTableView.h"
 #import "CMTimeFormatter.h"
 
+#import "DurationFormat.h"
 #import "NSPopover+Message.h"
 #import "NSManagedObject+Appulse.h"
 #import "Track.h"
@@ -21,15 +22,16 @@
 
 @interface CMMainViewController () <CMTrackTableViewDelegate, NSTableViewDataSource, NSWindowRestoration, CMMediaManagerDelegate, CMTimeFormatterDelegate>
 
-@property (weak, nonatomic) IBOutlet NSTextField *numTracksField, *numTracksLeftField, *progressField;
-@property (weak, nonatomic) IBOutlet NSProgressIndicator *progressIndicator;
-@property (weak, nonatomic) IBOutlet NSButton *clearSelectionButton, *centurionButton, *addTrackButton;
+@property (weak, nonatomic) IBOutlet NSTextField *numTracksField, *numTracksLeftField, *progressField, *previewStartField, *previewEndField;
+@property (weak, nonatomic) IBOutlet NSProgressIndicator *progressIndicator, *previewIndicator;
+@property (weak, nonatomic) IBOutlet NSButton *clearSelectionButton, *centurionButton, *addTrackButton, *previewButton;
 @property (weak, nonatomic) IBOutlet CMTrackTableView *tracksTableView;
 
 @property (strong, nonatomic) IBOutlet NSArrayController *trackArrayController;
+@property (strong, nonatomic) Track *playingTrack;
 
 @property (nonatomic) NSUInteger totalNumTracks;
-@property (nonatomic) BOOL creatingCenturion;
+@property (nonatomic) BOOL creatingCenturion, previewPlaying;
 
 @end
 
@@ -55,6 +57,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
     [super loadView];
     
     [self.tracksTableView registerForDraggedTypes:@[DraggedCellIdentifier]];
+    [self.tracksTableView setDoubleAction:@selector(preview:)];
 }
 
 #pragma mark - First Run
@@ -78,11 +81,8 @@ static NSInteger kHourOfPowerNumTracks = 60;
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     
     if (![defaults valueForKey:FIRST_RUN_KEY]
-        || [[defaults valueForKey:FIRST_RUN_KEY] boolValue]) {
-        CGRect frame = [self.tracksTableView frameOfCellAtColumn:2
-                                                             row:0];
-        
-        [NSPopover showRelativeToRect:frame
+        || [[defaults valueForKey:FIRST_RUN_KEY] boolValue]) {        
+        [NSPopover showRelativeToRect:[self.tracksTableView frame]
                                ofView:self.tracksTableView
                         preferredEdge:CGRectMinYEdge
                                string:@"You can re-order the tracks before creating the mix. Also you can set the starting time of a track to be included in the mix by editing the \"Mix Start\" column"
@@ -116,6 +116,79 @@ static NSInteger kHourOfPowerNumTracks = 60;
 
 #pragma mark - Logic
 
+- (void)refreshPreviewSliderForTrack:(Track *)track currentTime:(NSInteger)seconds
+{
+    if (!track) {
+        [self.previewIndicator setDoubleValue:0];
+        
+        [self.previewStartField setStringValue:@"0:00"];
+        [self.previewEndField setStringValue:@"1:00"];
+        
+        [self.previewButton setTitle:@"Play Preview"];
+    } else {
+        NSInteger secondsPlayed = seconds - [track.mixStartTime integerValue];
+        
+        [self.previewIndicator setDoubleValue:((secondsPlayed / 60.0) * 100)];
+        
+        [self.previewStartField setStringValue:[@(secondsPlayed) stringTrackDurationForInput:NO]];
+        [self.previewEndField setStringValue:[@(60 - secondsPlayed) stringTrackDurationForInput:NO]];
+        
+        [self.previewButton setTitle:@"Stop Preview"];
+    }
+}
+
+- (void)playSelectedTrack
+{    
+    NSInteger clickedRow = [self.tracksTableView clickedRow];
+    if (clickedRow == -1) {
+        NSIndexSet *selectedSet = [self.tracksTableView selectedRowIndexes];
+        if ([selectedSet count] > 0) {
+            clickedRow = [selectedSet firstIndex];
+        } else {
+            return;
+        }
+    }
+    
+    Track *track = [self.trackArrayController arrangedObjects][clickedRow];
+    
+    if (![self isValidTrack:track fileManager:[NSFileManager defaultManager]]) {
+        [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+    
+        return;
+    }
+        
+    CMMediaManager *mediaManager = [CMMediaManager sharedManager];
+    mediaManager.delegate = self;
+    
+    [self.previewIndicator startAnimation:nil];
+    [mediaManager startPreviewTrack:track withCurrentTimeBlock:^(NSInteger seconds) {
+        [self refreshPreviewSliderForTrack:track currentTime:seconds];
+        
+        if (seconds == ([track.mixStartTime integerValue] + 60)) {
+            [self refreshPreviewSliderForTrack:nil currentTime:-1];
+            [self.previewIndicator stopAnimation:nil];
+            
+            [self stopSelectedTrack];
+            [self.trackArrayController rearrangeObjects];
+        }
+    }];
+    
+    self.playingTrack.playing = @(NO);
+    track.playing = @(YES);
+    self.playingTrack = track;
+    
+    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+}
+
+- (void)stopSelectedTrack
+{
+    [[CMMediaManager sharedManager] stopPreview];
+    self.playingTrack.playing = @(NO);
+    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+    
+    [self refreshPreviewSliderForTrack:nil currentTime:-1];
+}
+
 - (void)resetState
 {
     [self.progressIndicator setDoubleValue:0];
@@ -131,16 +204,20 @@ static NSInteger kHourOfPowerNumTracks = 60;
     [self refreshData];
 }
 
+- (BOOL)isValidTrack:(Track *)track fileManager:(NSFileManager *)fileManager
+{
+    track.invalid = @(![fileManager fileExistsAtPath:track.filePath]);
+    
+    return ![track.invalid boolValue];
+}
+
 - (NSArray *)invalidTracks
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSMutableArray *nonExistingTracks = [[NSMutableArray alloc] init];
     [[self.trackArrayController arrangedObjects] enumerateObjectsUsingBlock:^(Track *track, NSUInteger idx, BOOL *stop) {
-        if (![fileManager fileExistsAtPath:track.filePath]) {
-            track.invalid = @(YES);
+        if (![self isValidTrack:track fileManager:fileManager]) {
             [nonExistingTracks addObject:track];
-        } else {
-            track.invalid = @(NO);
         }
     }];
     
@@ -169,18 +246,20 @@ static NSInteger kHourOfPowerNumTracks = 60;
     NSMutableString *trackLeftString = [[NSMutableString alloc] init];
     NSInteger centurionTracksLeft = kCenturionNumTracks - trackCount;
     NSInteger hourOfPowerTracksLeft = kHourOfPowerNumTracks - trackCount;
-    if (centurionTracksLeft > 0)
+    if (centurionTracksLeft > 0) {
         [trackLeftString appendFormat:@"Add %li for Centurion", centurionTracksLeft];
-    else
+    } else if (centurionTracksLeft > 0) {
         [trackLeftString appendFormat:@"Remove %li for Centurion", ABS(centurionTracksLeft)];
-    
+    }
+        
     [trackLeftString appendString:@"\n"];
     
-    if (hourOfPowerTracksLeft > 0)
+    if (hourOfPowerTracksLeft > 0) {
         [trackLeftString appendFormat:@"Add %li for Hour Of Power", hourOfPowerTracksLeft];
-    else
+    } else if (hourOfPowerTracksLeft < 0) {
         [trackLeftString appendFormat:@"Remove %li for Hour Of Power", ABS(hourOfPowerTracksLeft)];
-        
+    }
+    
     [self.numTracksLeftField setStringValue:trackLeftString];
     
     NSString *createString = @"Create Mix";
@@ -295,9 +374,10 @@ static NSInteger kHourOfPowerNumTracks = 60;
                     
                     [self.clearSelectionButton setEnabled:NO];
                     [self.addTrackButton setEnabled:NO];
-                    [self.centurionButton setTitle:@"Cancel Centurion"];
+                    [self.centurionButton setTitle:@"Cancel Mix"];
                     
                     [self.progressIndicator startAnimation:self];
+                    [self.progressIndicator setIndeterminate:YES];
                     
                     [[CMMediaManager sharedManager] createCenturionMixAtURL:[savePanel URL] fromTracks:[self.trackArrayController arrangedObjects] delegate:self completion:^(BOOL success) {
                         
@@ -331,6 +411,25 @@ static NSInteger kHourOfPowerNumTracks = 60;
     }
 }
 
+- (IBAction)preview:(id)sender
+{
+    if ([sender isKindOfClass:[NSButton class]]) {
+        if (self.previewPlaying) {
+            [self stopSelectedTrack];
+        } else {
+            [self playSelectedTrack];
+        }
+        
+        self.previewPlaying = !self.previewPlaying;
+    } else {
+        [self playSelectedTrack];
+        
+        self.previewPlaying = YES;
+    }
+    
+    [self.trackArrayController rearrangeObjects];
+}
+
 #pragma mark - Formatter delegate
 
 - (void)timeFormatter:(CMTimeFormatter *)timeFormatter
@@ -349,7 +448,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
 
 #pragma mark - Media delegate
 
-- (void)mediaManager:(CMMediaManager *)mediaManager changedProgressStatus:(double)progress
+- (void)mediaManager:(CMMediaManager *)mediaManager exportProgressStatus:(double)progress
 {
     [self.progressIndicator setDoubleValue:progress];
     
@@ -357,6 +456,11 @@ static NSInteger kHourOfPowerNumTracks = 60;
         [self.progressIndicator stopAnimation:self];
         [self.progressField setStringValue:@"Complete!"];
     }
+}
+
+- (void)mediaManagerWillStartExporting:(CMMediaManager *)mediaManager
+{
+    [self.progressIndicator setIndeterminate:NO];
 }
 
 #pragma mark - Table View Logic
@@ -420,6 +524,13 @@ static NSInteger kHourOfPowerNumTracks = 60;
 
 #pragma mark - Table view
 
+- (BOOL)tableView:(NSTableView *)tableView shouldEditTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
+{
+    Track *track = [self.trackArrayController arrangedObjects][row];
+    
+    return !([track.invalid boolValue] || [track.playing boolValue]);
+}
+
 - (void)tableView:(NSTableView *)tableView
   willDisplayCell:(id)cell
    forTableColumn:(NSTableColumn *)tableColumn
@@ -435,8 +546,12 @@ static NSInteger kHourOfPowerNumTracks = 60;
     } else {
         if ([tableColumn.identifier isEqualToString:@"Path"]) {
             [cell setTitle:@"Show"];
-        } else {
-            [cell setTextColor:[NSColor blackColor]];
+        } else {            
+            if ([track.playing boolValue]) {
+                [cell setTextColor:[NSColor blueColor]];
+            } else {
+                [cell setTextColor:[NSColor blackColor]];
+            }
         }
     }
     
@@ -546,6 +661,8 @@ static NSInteger kHourOfPowerNumTracks = 60;
     if (self.creatingCenturion) {
         [[CMMediaManager sharedManager] cancelCenturionMix];
     }
+    
+    [self stopSelectedTrack];
 }
 
 + (void)restoreWindowWithIdentifier:(NSString *)identifier

@@ -8,9 +8,10 @@
         <attribute name="length" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="mixStartTime" optional="YES" attributeType="Integer 16" defaultValueString="30" syncable="YES"/>
         <attribute name="order" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="playing" optional="YES" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Track" positionX="-207" positionY="-234" width="128" height="163"/>
+        <element name="Track" positionX="-207" positionY="-234" width="128" height="178"/>
     </elements>
 </model>

@@ -18,6 +18,8 @@
 
 @property (strong, nonatomic) NSTimer *progressIndicatorTimer;
 
+@property (strong, nonatomic) AVPlayer *player;
+
 @end
 
 @implementation CMMediaManager
@@ -112,8 +114,8 @@
 
 - (void)updateProgressIndicator
 {
-    if ([self.delegate respondsToSelector:@selector(mediaManager:changedProgressStatus:)]) {
-        [self.delegate mediaManager:self changedProgressStatus:(100 * self.exportSession.progress)];
+    if ([self.delegate respondsToSelector:@selector(mediaManager:exportProgressStatus:)]) {
+        [self.delegate mediaManager:self exportProgressStatus:(100 * self.exportSession.progress)];
     }
 }
 
@@ -179,6 +181,12 @@
                                       forTrack:nil];
         }
         
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([self.delegate respondsToSelector:@selector(mediaManagerWillStartExporting:)]) {
+                [self.delegate mediaManagerWillStartExporting:self];
+            }
+        });
+        
         [self exportComposition:centurionMixComposition
                           toURL:url
                      completion:^(AVAssetExportSessionStatus status) {
@@ -188,8 +196,8 @@
                              
                              BOOL success = (status == AVAssetExportSessionStatusCompleted);
                              
-                             if ([self.delegate respondsToSelector:@selector(mediaManager:changedProgressStatus:)]) {
-                                 [self.delegate mediaManager:self changedProgressStatus:(success) ? 100 : 0];
+                             if ([self.delegate respondsToSelector:@selector(mediaManager:exportProgressStatus:)]) {
+                                 [self.delegate mediaManager:self exportProgressStatus:(success) ? 100 : 0];
                              }
                              
                              if (completionBlock) {
@@ -203,6 +211,33 @@
 - (void)cancelCenturionMix
 {    
     [self.exportSession cancelExport];
+}
+
+- (void)startPreviewTrack:(Track *)track
+     withCurrentTimeBlock:(void (^)(NSInteger seconds))currentTimeBlcok;
+{
+    if (self.player)
+        [self stopPreview];
+    
+    self.player = [[AVPlayer alloc] initWithURL:[[NSURL alloc] initFileURLWithPath:track.filePath]];
+    
+    [self.player seekToTime:CMTimeMakeWithSeconds(([track.mixStartTime floatValue] + 1), 1)];
+    
+    [self.player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1, 1)
+                                         queue:dispatch_queue_create("timeObserver", NULL)
+                                    usingBlock:^(CMTime time) {
+                                        if (currentTimeBlcok) {
+                                            currentTimeBlcok(time.value / time.timescale);
+                                        }
+                                    }];
+    
+    [self.player play];
+}
+
+- (void)stopPreview
+{
+    [self.player pause];
+    self.player = nil;
 }
 
 @end

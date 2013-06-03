@@ -14,8 +14,8 @@
 @protocol CMMediaManagerDelegate <NSObject>
 
 @optional
-- (void)mediaManager:(CMMediaManager *)mediaManager changedProgressStatus:(double)progress;
-
+- (void)mediaManager:(CMMediaManager *)mediaManager exportProgressStatus:(double)progress;
+- (void)mediaManagerWillStartExporting:(CMMediaManager *)mediaManager;
 @end
 
 @interface CMMediaManager : NSObject
@@ -32,5 +32,9 @@
                      completion:(void (^)(BOOL success))completionBlock;
 
 - (void)cancelCenturionMix;
+
+- (void)startPreviewTrack:(Track *)track
+     withCurrentTimeBlock:(void (^)(NSInteger seconds))currentTimeBlcok;
+- (void)stopPreview;
 
 @end
