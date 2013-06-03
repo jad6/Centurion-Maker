@@ -18,8 +18,6 @@
 #import "NSManagedObject+Appulse.h"
 #import "Track.h"
 
-#define FIRST_RUN_KEY @"CMFirstRun"
-
 @interface CMMainViewController () <CMTrackTableViewDelegate, NSTableViewDataSource, NSWindowRestoration, CMMediaManagerDelegate, CMTimeFormatterDelegate>
 
 @property (weak, nonatomic) IBOutlet NSTextField *numTracksField, *numTracksLeftField, *progressField, *previewStartField, *previewEndField;
@@ -85,10 +83,27 @@ static NSInteger kHourOfPowerNumTracks = 60;
         [NSPopover showRelativeToRect:[self.tracksTableView frame]
                                ofView:self.tracksTableView
                         preferredEdge:CGRectMinYEdge
-                               string:@"You can re-order the tracks before creating the mix. Also you can set the starting time of a track to be included in the mix by editing the \"Mix Start\" column"
+                               string:@"You can re-order the tracks before creating the mix. Also you can set the starting time of a track to be included in the mix by editing the \"Mix Start\" column."
                              maxWidth:300.0];
         
         [defaults setValue:@(NO) forKey:FIRST_RUN_KEY];
+        [defaults synchronize];
+    }
+}
+
+- (void)handleFirstTrackPlay
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    
+    if (![defaults valueForKey:FIRST_PLAY_KEY]
+        || [[defaults valueForKey:FIRST_PLAY_KEY] boolValue]) {
+        [NSPopover showRelativeToRect:[self.previewButton frame]
+                               ofView:[self view]
+                        preferredEdge:CGRectMaxXEdge
+                               string:@"You are previewing the minute long track snippet which will be mixed. You can change the start time of the snippet by editing the \"Mix Start\" column."
+                             maxWidth:300.0];
+        
+        [defaults setValue:@(NO) forKey:FIRST_PLAY_KEY];
         [defaults synchronize];
     }
 }
@@ -413,6 +428,8 @@ static NSInteger kHourOfPowerNumTracks = 60;
 
 - (IBAction)preview:(id)sender
 {
+    [self handleFirstTrackPlay];
+    
     if ([sender isKindOfClass:[NSButton class]]) {
         if (self.previewPlaying) {
             [self stopSelectedTrack];

@@ -51,8 +51,9 @@
 {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     
-    [defaults setValue:@(YES) forKey:@"CMFirstRun"];
-    
+    [defaults setValue:@(YES) forKey:FIRST_RUN_KEY];
+    [defaults setValue:@(YES) forKey:FIRST_PLAY_KEY];
+
     [defaults synchronize];
     
     [self.mainVC handleFirstRunOnLaunch];

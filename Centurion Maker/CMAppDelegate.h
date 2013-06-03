@@ -8,6 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 
+#define FIRST_RUN_KEY @"CMFirstRun"
+#define FIRST_PLAY_KEY @"CMFirstPlay"
+
 @interface CMAppDelegate : NSObject <NSApplicationDelegate>
 
 @property (assign) IBOutlet NSWindow *window;
