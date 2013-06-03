@@ -254,7 +254,7 @@
 											<object class="NSTableColumn" id="395839168">
 												<double key="NSWidth">40</double>
 												<double key="NSMinWidth">40</double>
-												<double key="NSMaxWidth">1000</double>
+												<double key="NSMaxWidth">40</double>
 												<object class="NSTableHeaderCell" key="NSHeaderCell">
 													<int key="NSCellFlags">75497536</int>
 													<int key="NSCellFlags2">2048</int>
@@ -296,8 +296,8 @@
 											</object>
 											<object class="NSTableColumn" id="611738542">
 												<string key="NSIdentifier">Name</string>
-												<double key="NSWidth">281</double>
-												<double key="NSMinWidth">40</double>
+												<double key="NSWidth">250</double>
+												<double key="NSMinWidth">100</double>
 												<double key="NSMaxWidth">1000</double>
 												<object class="NSTableHeaderCell" key="NSHeaderCell">
 													<int key="NSCellFlags">75497536</int>
@@ -322,8 +322,8 @@
 												<reference key="NSTableView" ref="303915716"/>
 											</object>
 											<object class="NSTableColumn" id="969267448">
-												<double key="NSWidth">207</double>
-												<double key="NSMinWidth">10</double>
+												<double key="NSWidth">250</double>
+												<double key="NSMinWidth">100</double>
 												<double key="NSMaxWidth">3.4028234663852886e+38</double>
 												<object class="NSTableHeaderCell" key="NSHeaderCell">
 													<int key="NSCellFlags">75497536</int>
@@ -356,9 +356,9 @@
 												<reference key="NSTableView" ref="303915716"/>
 											</object>
 											<object class="NSTableColumn" id="835656589">
-												<double key="NSWidth">66</double>
-												<double key="NSMinWidth">10</double>
-												<double key="NSMaxWidth">3.4028234663852886e+38</double>
+												<double key="NSWidth">64</double>
+												<double key="NSMinWidth">64</double>
+												<double key="NSMaxWidth">64</double>
 												<object class="NSTableHeaderCell" key="NSHeaderCell">
 													<int key="NSCellFlags">75497536</int>
 													<int key="NSCellFlags2">2048</int>
@@ -384,8 +384,8 @@
 											<object class="NSTableColumn" id="795115199">
 												<string key="NSIdentifier">Mix Start</string>
 												<double key="NSWidth">64</double>
-												<double key="NSMinWidth">10</double>
-												<double key="NSMaxWidth">3.4028234663852886e+38</double>
+												<double key="NSMinWidth">64</double>
+												<double key="NSMaxWidth">64</double>
 												<object class="NSTableHeaderCell" key="NSHeaderCell">
 													<int key="NSCellFlags">75497536</int>
 													<int key="NSCellFlags2">2048</int>
@@ -411,12 +411,12 @@
 											<object class="NSTableColumn" id="343882982">
 												<string key="NSIdentifier">Path</string>
 												<double key="NSWidth">55</double>
-												<double key="NSMinWidth">10</double>
-												<double key="NSMaxWidth">3.4028234663852886e+38</double>
+												<double key="NSMinWidth">55</double>
+												<double key="NSMaxWidth">55</double>
 												<object class="NSTableHeaderCell" key="NSHeaderCell">
 													<int key="NSCellFlags">75497536</int>
 													<int key="NSCellFlags2">2048</int>
-													<string key="NSContents">Path</string>
+													<string key="NSContents">File</string>
 													<reference key="NSSupport" ref="26"/>
 													<reference key="NSBackgroundColor" ref="917259148"/>
 													<reference key="NSTextColor" ref="700144387"/>
@@ -470,7 +470,7 @@
 										<int key="NSTvFlags">-624951296</int>
 										<reference key="NSDelegate"/>
 										<reference key="NSDataSource"/>
-										<int key="NSColumnAutoresizingStyle">4</int>
+										<int key="NSColumnAutoresizingStyle">0</int>
 										<int key="NSDraggingSourceMaskForLocal">15</int>
 										<int key="NSDraggingSourceMaskForNonLocal">0</int>
 										<bool key="NSAllowsTypeSelect">YES</bool>
