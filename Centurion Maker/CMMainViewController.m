@@ -290,7 +290,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
 #pragma mark - Actions
 
 - (IBAction)selectTracks:(id)sender
-{
+{    
     NSOpenPanel *openPanel = [NSOpenPanel openPanel];
     openPanel.canChooseDirectories = NO;
     openPanel.allowsMultipleSelection = YES;
@@ -351,6 +351,8 @@ static NSInteger kHourOfPowerNumTracks = 60;
 
 - (IBAction)clearSelectedtracks:(id)sender
 {
+    [self stopSelectedTrack];
+    
     // Remove tracks here
     NSArray *allTracks = [Track findAllInContext:self.managedObjectContext];
     
