@@ -16,4 +16,6 @@
 
 - (void)handleFirstRunOnLaunch;
 
+- (void)deleteSelectedtracks;
+
 @end

@@ -18,6 +18,8 @@
 #import "NSManagedObject+Appulse.h"
 #import "Track.h"
 
+#define MAX_NUM_TRACKS 150
+
 @interface CMMainViewController () <CMTrackTableViewDelegate, NSTableViewDataSource, NSWindowRestoration, CMMediaManagerDelegate, CMTimeFormatterDelegate>
 
 @property (weak, nonatomic) IBOutlet NSTextField *numTracksField, *numTracksLeftField, *progressField, *previewStartField, *previewEndField;
@@ -188,7 +190,9 @@ static NSInteger kHourOfPowerNumTracks = 60;
         }
     }];
     
-    self.playingTrack.playing = @(NO);
+    if (self.playingTrack)
+        self.playingTrack.playing = @(NO);
+    
     track.playing = @(YES);
     self.playingTrack = track;
     
@@ -198,8 +202,12 @@ static NSInteger kHourOfPowerNumTracks = 60;
 - (void)stopSelectedTrack
 {
     [[CMMediaManager sharedManager] stopPreview];
-    self.playingTrack.playing = @(NO);
-    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+    if (self.playingTrack) {
+        self.playingTrack.playing = @(NO);
+        [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+    }
+    
+    self.playingTrack = nil;
     
     [self refreshPreviewSliderForTrack:nil currentTime:-1];
 }
@@ -247,6 +255,19 @@ static NSInteger kHourOfPowerNumTracks = 60;
     [self.trackArrayController rearrangeObjects];
     
     return nil;
+}
+
+- (void)deleteSelectedtracks
+{
+    [self.trackArrayController removeObjectsAtArrangedObjectIndexes:[self.tracksTableView selectedRowIndexes]];
+    
+    [self reorderTracks:[self.trackArrayController arrangedObjects] startingAt:0];
+    
+    [self.tracksTableView deselectAll:nil];
+    
+    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+    
+    [self refreshData];
 }
 
 - (void)refreshData
@@ -299,6 +320,13 @@ static NSInteger kHourOfPowerNumTracks = 60;
     if ([documentController runModalOpenPanel:openPanel forTypes:@[@"mp3", @"m4a"]] == NSOKButton) {
         NSArray *fileURLs = [openPanel URLs];
         NSMutableArray *tooShortTrackNames = [[NSMutableArray alloc] init];
+        
+        if (self.totalNumTracks + [fileURLs count] > MAX_NUM_TRACKS) {
+            NSAlert *tooManyTracksAlert = [NSAlert alertWithMessageText:@"Added Too Many Tracks" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"You can only add a maximum of %i tracks.", MAX_NUM_TRACKS];
+            [tooManyTracksAlert runModal];
+            
+            return;
+        }
         
         [fileURLs enumerateObjectsUsingBlock:^(NSURL *fileURL, NSUInteger idx, BOOL *stop) {
             
@@ -525,15 +553,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
 
 - (void)tableView:(NSTableView *)tableView didPressDeleteKeyForRowIndexes:(NSIndexSet *)indexSet
 {
-    [self.trackArrayController removeObjectsAtArrangedObjectIndexes:indexSet];
-    
-    [self reorderTracks:[self.trackArrayController arrangedObjects] startingAt:0];
-    
-    [tableView deselectAll:nil];
-    
-    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
-    
-    [self refreshData];
+    [self deleteSelectedtracks];
 }
 
 - (BOOL)tableView:(NSTableView *)tableView shouldRespondToDeleteKeyForRowIndexes:(NSIndexSet *)indexSet

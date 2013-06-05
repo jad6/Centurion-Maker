@@ -59,6 +59,11 @@
     [self.mainVC handleFirstRunOnLaunch];
 }
 
+- (IBAction)deleteSelectedTracks:(id)sender
+{
+    [self.mainVC deleteSelectedtracks];
+}
+
 #pragma mark - CoreData
 
 // Returns the directory the application uses to store the Core Data store file. This code uses a directory named "com.jad.Centurion_Maker" in the user's Application Support directory.
