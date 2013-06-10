@@ -22,7 +22,8 @@
 
 @interface CMMainViewController () <CMTrackTableViewDelegate, NSTableViewDataSource, NSWindowRestoration, CMMediaManagerDelegate, CMTimeFormatterDelegate>
 
-@property (weak, nonatomic) IBOutlet NSTextField *numTracksField, *numTracksLeftField, *progressField, *previewStartField, *previewEndField;
+@property (weak, nonatomic) IBOutlet NSTextField *numTracksLeftField, *progressField, *previewStartField, *previewEndField;
+@property (weak, nonatomic) IBOutlet NSSearchField *numTracksSearchField;
 @property (weak, nonatomic) IBOutlet NSProgressIndicator *progressIndicator, *previewIndicator;
 @property (weak, nonatomic) IBOutlet NSButton *clearSelectionButton, *centurionButton, *addTrackButton, *previewButton;
 @property (weak, nonatomic) IBOutlet CMTrackTableView *tracksTableView;
@@ -70,7 +71,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
         || [[defaults valueForKey:FIRST_RUN_KEY] boolValue]) {
         [NSPopover showRelativeToRect:[self.addTrackButton frame]
                                ofView:[self view]
-                        preferredEdge:CGRectMaxXEdge
+                        preferredEdge:CGRectMaxYEdge
                                string:@"Welcome! Get started by adding tracks into the mix. You can add mutliple batches to make up to 60 or 100 tracks."
                              maxWidth:260.0];
     }
@@ -277,7 +278,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
     [self.centurionButton setEnabled:((trackCount == kCenturionNumTracks)
                                       || (trackCount == kHourOfPowerNumTracks))];
     
-    [self.numTracksField setStringValue:[[NSString alloc] initWithFormat:@"%li tracks", trackCount]];
+    [[self.numTracksSearchField cell] setPlaceholderString:[[NSString alloc] initWithFormat:@"Search %li Tracks", trackCount]];
     
     NSMutableString *trackLeftString = [[NSMutableString alloc] init];
     NSInteger centurionTracksLeft = kCenturionNumTracks - trackCount;
@@ -407,6 +408,8 @@ static NSInteger kHourOfPowerNumTracks = 60;
 
         [self.progressIndicator stopAnimation:self];        
     } else {
+        [self stopSelectedTrack];
+        
         NSArray *invalidTracks = [self invalidTracks];
         
         if (!invalidTracks) {
@@ -554,6 +557,9 @@ static NSInteger kHourOfPowerNumTracks = 60;
 - (void)tableView:(NSTableView *)tableView didPressDeleteKeyForRowIndexes:(NSIndexSet *)indexSet
 {
     [self deleteSelectedtracks];
+    
+    [self reorderTracks:[Track findAllInContext:self.managedObjectContext] startingAt:0];
+    [self.trackArrayController rearrangeObjects];
 }
 
 - (BOOL)tableView:(NSTableView *)tableView shouldRespondToDeleteKeyForRowIndexes:(NSIndexSet *)indexSet

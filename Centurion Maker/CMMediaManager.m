@@ -65,12 +65,14 @@
     NSArray *tracks = [asset tracksWithMediaType:AVMediaTypeAudio];
     
     if ([tracks count] == 0) {
-        NSLog(@"Error on track: %@", track);
+        NSLog(@"Error: 0 audio tracks on track: %@", track);
     }
     
     AVAssetTrack *clipAudioTrack = [tracks lastObject];
     CMTimeRange timeRangeInAsset = CMTimeRangeMake(insertionTime, duration);
     [compositionTrack insertTimeRange:timeRangeInAsset ofTrack:clipAudioTrack atTime:startTime error:&error];
+    
+    NSLog(@"%lf", CMTimeGetSeconds(CMTimeAdd(startTime, timeRangeInAsset.duration)));
     
     return CMTimeAdd(startTime, timeRangeInAsset.duration);
 }
@@ -159,7 +161,9 @@
         AVMutableComposition *centurionMixComposition = [[AVMutableComposition alloc] init];
         AVMutableCompositionTrack *compositionAudioTrack = [centurionMixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
         
+        AVAsset *beepAsset = [AVAsset assetWithURL:[[NSBundle mainBundle] URLForResource:@"ComputerData" withExtension:@"caf"]];
         CMTime nextClipStartTime = kCMTimeZero;
+        CMTime trackTime = CMTimeAbsoluteValue(CMTimeAdd(CMTimeMake(-60, 1), beepAsset.duration));
         
         for (Track *track in tracks) {
             AVAsset *asset = [AVAsset assetWithURL:[[NSURL alloc] initFileURLWithPath:track.filePath]];
@@ -167,16 +171,14 @@
             nextClipStartTime = [self addAsset:asset
                                        toTrack:compositionAudioTrack
                                  insertionTime:CMTimeMakeWithSeconds([track.mixStartTime integerValue], 1)
-                                  withDuration:CMTimeMakeWithSeconds(59, 1)
+                                  withDuration:trackTime
                                      startTime:nextClipStartTime
                                       forTrack:track];
-            
-            AVAsset *beepAsset = [AVAsset assetWithURL:[[NSBundle mainBundle] URLForResource:@"ComputerData" withExtension:@"caf"]];
             
             nextClipStartTime = [self addAsset:beepAsset
                                        toTrack:compositionAudioTrack
                                  insertionTime:kCMTimeZero
-                                  withDuration:CMTimeMakeWithSeconds(1, 1)
+                                  withDuration:beepAsset.duration
                                      startTime:nextClipStartTime
                                       forTrack:nil];
         }
