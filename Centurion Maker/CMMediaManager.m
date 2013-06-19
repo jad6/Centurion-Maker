@@ -38,6 +38,45 @@
 
 #pragma mark - Logic
 
+#warning message
+- (NSNumber *)sampleRateOfTrack:(Track *)track
+{
+    NSError *error = nil;
+    AVAudioPlayer *audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[[NSURL alloc] initFileURLWithPath:track.filePath] error:&error];
+    
+    return audioPlayer.settings[AVSampleRateKey];
+}
+
+- (BOOL)handleMutlipleSampleRates:(NSMutableDictionary *)tracksSampleRates
+                 errorDescription:(NSString **)descrtiprion
+{
+    NSArray *allKeys = [tracksSampleRates allKeys];
+    if ([allKeys count] == 1) {
+        return YES;
+    }
+
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"self" ascending:YES];
+    NSNumber *majoritySampleRate = [[allKeys sortedArrayUsingDescriptors:@[sortDescriptor]] lastObject];
+    [tracksSampleRates removeObjectForKey:majoritySampleRate];
+    
+    NSMutableString *invalidTracks = [[NSMutableString alloc] init];
+    [tracksSampleRates enumerateKeysAndObjectsUsingBlock:^(NSNumber *sampleRate, NSArray *tracks, BOOL *stop) {
+        [tracks enumerateObjectsUsingBlock:^(Track *track, NSUInteger idx, BOOL *stop) {
+            [invalidTracks appendFormat:@"#%@ - \"%@\" at %@Hz\n", track.order, track.title, sampleRate];
+            track.invalid = @(YES);
+        }];
+    }];
+    
+    NSMutableString *mutableDescription = [[NSMutableString alloc] initWithString:@"Multiple sample rates were found. "];
+    [mutableDescription appendFormat:@"The majority of the tracks are at %@Hz. However these tracks have a different sample rate:\n\n", majoritySampleRate];
+    [mutableDescription appendString:invalidTracks];
+    [mutableDescription appendString:@"\nPlease fix these files and try again."];
+    
+    *descrtiprion = mutableDescription;
+    
+    return NO;
+}
+
 - (void)startProgressTimer
 {
     self.progressIndicatorTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
@@ -58,22 +97,15 @@
      insertionTime:(CMTime)insertionTime
       withDuration:(CMTime)duration
          startTime:(CMTime)startTime
-          forTrack:(Track *)track
 {
     NSError *error = nil;
     
     NSArray *tracks = [asset tracksWithMediaType:AVMediaTypeAudio];
     
-    if ([tracks count] == 0) {
-        NSLog(@"Error: 0 audio tracks on track: %@", track);
-    }
-    
     AVAssetTrack *clipAudioTrack = [tracks lastObject];
     CMTimeRange timeRangeInAsset = CMTimeRangeMake(insertionTime, duration);
     [compositionTrack insertTimeRange:timeRangeInAsset ofTrack:clipAudioTrack atTime:startTime error:&error];
-    
-    NSLog(@"%lf", CMTimeGetSeconds(CMTimeAdd(startTime, timeRangeInAsset.duration)));
-    
+        
     return CMTimeAdd(startTime, timeRangeInAsset.duration);
 }
 
@@ -158,6 +190,10 @@
     dispatch_queue_t exportQueue = dispatch_queue_create("export", NULL);
     dispatch_async(exportQueue, ^{
         
+        if ([self.delegate respondsToSelector:@selector(mediaManagerDidStartProcessingMedia:)]) {
+            [self.delegate mediaManagerDidStartProcessingMedia:self];
+        }
+        
         AVMutableComposition *centurionMixComposition = [[AVMutableComposition alloc] init];
         AVMutableCompositionTrack *compositionAudioTrack = [centurionMixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
         
@@ -165,25 +201,46 @@
         CMTime nextClipStartTime = kCMTimeZero;
         CMTime trackTime = CMTimeAbsoluteValue(CMTimeAdd(CMTimeMake(-60, 1), beepAsset.duration));
         
+#warning This is here because of a bug with mixing different sample rates. Might be fixed later, WWDC 2013 engineers know about it. Thanks David.
+        NSMutableDictionary *tracksSampleRates = [[NSMutableDictionary alloc] init];
+                
         for (Track *track in tracks) {
             AVAsset *asset = [AVAsset assetWithURL:[[NSURL alloc] initFileURLWithPath:track.filePath]];
             
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSNumber *sampleRate = [self sampleRateOfTrack:track];
+                id sampleRateTracks = tracksSampleRates[sampleRate];
+                
+                if (!sampleRateTracks) {
+                    tracksSampleRates[sampleRate] = [[NSMutableArray alloc] initWithObjects:track, nil];
+                } else {
+                    [sampleRateTracks addObject:track];
+                }
+            });
+                           
             nextClipStartTime = [self addAsset:asset
                                        toTrack:compositionAudioTrack
                                  insertionTime:CMTimeMakeWithSeconds([track.mixStartTime integerValue], 1)
                                   withDuration:trackTime
-                                     startTime:nextClipStartTime
-                                      forTrack:track];
+                                     startTime:nextClipStartTime];
             
             nextClipStartTime = [self addAsset:beepAsset
                                        toTrack:compositionAudioTrack
                                  insertionTime:kCMTimeZero
                                   withDuration:beepAsset.duration
-                                     startTime:nextClipStartTime
-                                      forTrack:nil];
+                                     startTime:nextClipStartTime];
         }
-        
+            
         dispatch_async(dispatch_get_main_queue(), ^{
+            NSString *description = nil;
+            if (![self handleMutlipleSampleRates:tracksSampleRates
+                                errorDescription:&description]) {
+                [self.exportSession cancelExport];
+                [self endProgressTimer];
+                
+                [self.delegate mediaManager:self didFailWithErrorDescription:description];
+            }
+            
             if ([self.delegate respondsToSelector:@selector(mediaManagerWillStartExporting:)]) {
                 [self.delegate mediaManagerWillStartExporting:self];
             }

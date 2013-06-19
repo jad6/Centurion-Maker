@@ -13,9 +13,12 @@
 
 @protocol CMMediaManagerDelegate <NSObject>
 
+- (void)mediaManager:(CMMediaManager *)mediaManaher didFailWithErrorDescription:(NSString *)description;
+
 @optional
 - (void)mediaManager:(CMMediaManager *)mediaManager exportProgressStatus:(double)progress;
 - (void)mediaManagerWillStartExporting:(CMMediaManager *)mediaManager;
+- (void)mediaManagerDidStartProcessingMedia:(CMMediaManager *)mediaManager;
 @end
 
 @interface CMMediaManager : NSObject

@@ -129,10 +129,19 @@ static NSInteger kHourOfPowerNumTracks = 60;
         _managedObjectContext = managedObjectContext;
     }
     
-    [self refreshData];
+    [self refreshDisplay];
 }
 
 #pragma mark - Logic
+
+- (void)saveAndRefreshData:(BOOL)refresh
+{
+    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+    
+    if (refresh) {
+        [self.trackArrayController rearrangeObjects];
+    }
+}
 
 - (void)refreshPreviewSliderForTrack:(Track *)track currentTime:(NSInteger)seconds
 {
@@ -170,8 +179,8 @@ static NSInteger kHourOfPowerNumTracks = 60;
     Track *track = [self.trackArrayController arrangedObjects][clickedRow];
     
     if (![self isValidTrack:track fileManager:[NSFileManager defaultManager]]) {
-        [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
-    
+        [self saveAndRefreshData:NO];
+        
         return;
     }
         
@@ -197,7 +206,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
     track.playing = @(YES);
     self.playingTrack = track;
     
-    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+    [self saveAndRefreshData:NO];
 }
 
 - (void)stopSelectedTrack
@@ -205,7 +214,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
     [[CMMediaManager sharedManager] stopPreview];
     if (self.playingTrack) {
         self.playingTrack.playing = @(NO);
-        [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+        [self saveAndRefreshData:NO];
     }
     
     self.playingTrack = nil;
@@ -225,7 +234,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
     
     self.creatingCenturion = NO;
     
-    [self refreshData];
+    [self refreshDisplay];
 }
 
 - (BOOL)isValidTrack:(Track *)track fileManager:(NSFileManager *)fileManager
@@ -246,8 +255,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
     }];
     
     if ([nonExistingTracks count] != 0) {
-        [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
-        [self.trackArrayController rearrangeObjects];
+        [self saveAndRefreshData:YES];
         
         return nonExistingTracks;
     }
@@ -266,12 +274,11 @@ static NSInteger kHourOfPowerNumTracks = 60;
     
     [self.tracksTableView deselectAll:nil];
     
-    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
-    
-    [self refreshData];
+    [self saveAndRefreshData:NO];
+    [self refreshDisplay];
 }
 
-- (void)refreshData
+- (void)refreshDisplay
 {
     NSInteger trackCount = [Track countInContext:self.managedObjectContext];
     
@@ -372,10 +379,10 @@ static NSInteger kHourOfPowerNumTracks = 60;
             [self handleFirstRunTracksAdded];
         }
                 
-        [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+        [self saveAndRefreshData:NO];
     }
     
-    [self refreshData];
+    [self refreshDisplay];
 }
 
 - (IBAction)clearSelectedtracks:(id)sender
@@ -391,9 +398,9 @@ static NSInteger kHourOfPowerNumTracks = 60;
     
     self.totalNumTracks = 0;
     
-    [self refreshData];
+    [self refreshDisplay];
     
-    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
+    [self saveAndRefreshData:NO];
 }
 
 - (IBAction)centurion:(id)sender
@@ -424,9 +431,6 @@ static NSInteger kHourOfPowerNumTracks = 60;
                     [self.addTrackButton setEnabled:NO];
                     [self.centurionButton setTitle:@"Cancel Mix"];
                     
-                    [self.progressIndicator startAnimation:self];
-                    [self.progressIndicator setIndeterminate:YES];
-                    
                     [[CMMediaManager sharedManager] createCenturionMixAtURL:[savePanel URL] fromTracks:[self.trackArrayController arrangedObjects] delegate:self completion:^(BOOL success) {
                         
                         if (success) {
@@ -451,7 +455,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
     Track *track = [self.trackArrayController arrangedObjects][[self.tracksTableView selectedRow]];
     
     if ([track.invalid boolValue]) {
-        NSAlert *alert = [NSAlert alertWithMessageText:@"File Not Found" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"The original file for \"%@\" could not be found.", track.title];
+        NSAlert *alert = [NSAlert alertWithMessageText:@"File Error" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"Make sure the original file for \"%@\" exists or that it matches the sample rate of the other tracks.", track.title];
         [alert runModal];
     } else {
         NSArray *fileURLs = @[[[NSURL alloc] initFileURLWithPath:track.filePath]];
@@ -498,6 +502,19 @@ static NSInteger kHourOfPowerNumTracks = 60;
 
 #pragma mark - Media delegate
 
+- (void)mediaManager:(CMMediaManager *)mediaManaher didFailWithErrorDescription:(NSString *)description
+{
+    NSAlert *errorAlert = [NSAlert alertWithMessageText:@"Error Making Mix"
+                                          defaultButton:@"OK"
+                                        alternateButton:nil
+                                            otherButton:nil
+                              informativeTextWithFormat:@"%@", description];
+    [errorAlert runModal];
+    
+    [self saveAndRefreshData:YES];
+    [self resetState];
+}
+
 - (void)mediaManager:(CMMediaManager *)mediaManager exportProgressStatus:(double)progress
 {
     [self.progressIndicator setDoubleValue:progress];
@@ -510,7 +527,16 @@ static NSInteger kHourOfPowerNumTracks = 60;
 
 - (void)mediaManagerWillStartExporting:(CMMediaManager *)mediaManager
 {
+    [self.progressField setStringValue:@"Exporting Mix..."];
     [self.progressIndicator setIndeterminate:NO];
+}
+
+- (void)mediaManagerDidStartProcessingMedia:(CMMediaManager *)mediaManager
+{
+    [self.progressIndicator startAnimation:self];
+
+    [self.progressField setStringValue:@"Processing Tracks..."];
+    [self.progressIndicator setIndeterminate:YES];
 }
 
 #pragma mark - Table View Logic
@@ -665,9 +691,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
     currentOrder = [self reorderTracks:draggedItemsArray startingAt:currentOrder];
     currentOrder = [self reorderTracks:endItemsArray startingAt:currentOrder];
         
-    [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
-    
-    [self.trackArrayController rearrangeObjects];
+    [self saveAndRefreshData:YES];
     
     return YES;
 }
