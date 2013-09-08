@@ -134,6 +134,18 @@ static NSInteger kHourOfPowerNumTracks = 60;
 
 #pragma mark - Logic
 
+- (void)showNotificationSuccess:(BOOL)success
+{
+    NSUserNotification *notification = [[NSUserNotification alloc] init];
+    notification.title = (success) ? @"Mix Complete" : @"Mix Error";
+    notification.informativeText = (success) ? @"Check it out." : @"Well that sucks.";
+    notification.deliveryDate = [NSDate date];
+    notification.soundName = NSUserNotificationDefaultSoundName;
+    
+    NSUserNotificationCenter *center = [NSUserNotificationCenter defaultUserNotificationCenter];
+    [center scheduleNotification:notification];
+}
+
 - (void)saveAndRefreshData:(BOOL)refresh
 {
     [(CMAppDelegate *)[NSApp delegate] saveAction:nil];
@@ -433,11 +445,8 @@ static NSInteger kHourOfPowerNumTracks = 60;
                     
                     [[CMMediaManager sharedManager] createCenturionMixAtURL:[savePanel URL] fromTracks:[self.trackArrayController arrangedObjects] delegate:self completion:^(BOOL success) {
                         
-                        if (success) {
-                            NSAlert *completeAlert = [NSAlert alertWithMessageText:@"Mix Completed!" defaultButton:@"Yay!" alternateButton:nil otherButton:nil informativeTextWithFormat:@"The mix has been created successfully."];
-                            [completeAlert runModal];
-                        }
-                        
+                        [self showNotificationSuccess:success];
+
                         [self resetState];
                     }];
                 }

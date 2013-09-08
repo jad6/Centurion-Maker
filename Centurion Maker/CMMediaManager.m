@@ -55,22 +55,32 @@
         return YES;
     }
 
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"self" ascending:YES];
-    NSNumber *majoritySampleRate = [[allKeys sortedArrayUsingDescriptors:@[sortDescriptor]] lastObject];
+    __block NSInteger maxNumTracks = 0;
+    __block NSNumber *majoritySampleRate = nil;
+    [tracksSampleRates enumerateKeysAndObjectsUsingBlock:^(NSNumber *key, NSArray *tracks, BOOL *stop) {
+        NSInteger numTracks = [tracks count];
+        if (maxNumTracks < numTracks) {
+            maxNumTracks = numTracks;
+            majoritySampleRate = key;
+        }
+    }];
     [tracksSampleRates removeObjectForKey:majoritySampleRate];
     
     NSMutableString *invalidTracks = [[NSMutableString alloc] init];
+    __block NSInteger numInvalidTracks = 0;
     [tracksSampleRates enumerateKeysAndObjectsUsingBlock:^(NSNumber *sampleRate, NSArray *tracks, BOOL *stop) {
         [tracks enumerateObjectsUsingBlock:^(Track *track, NSUInteger idx, BOOL *stop) {
             [invalidTracks appendFormat:@"#%@ - \"%@\" at %@Hz\n", track.order, track.title, sampleRate];
             track.invalid = @(YES);
+            numInvalidTracks++;
         }];
     }];
     
+    NSString *filePlural = (numInvalidTracks > 1) ? @"these files" : @"this file";
     NSMutableString *mutableDescription = [[NSMutableString alloc] initWithString:@"Multiple sample rates were found. "];
-    [mutableDescription appendFormat:@"The majority of the tracks are at %@Hz. However these tracks have a different sample rate:\n\n", majoritySampleRate];
+    [mutableDescription appendFormat:@"The majority of the tracks are at %@Hz. However a different sample rate is observed for %@:\n\n", majoritySampleRate, filePlural];
     [mutableDescription appendString:invalidTracks];
-    [mutableDescription appendString:@"\nPlease fix these files and try again."];
+    [mutableDescription appendFormat:@"\nPlease fix %@ by converting it with your preferred tool and try again.", filePlural];
     
     *descrtiprion = mutableDescription;
     
