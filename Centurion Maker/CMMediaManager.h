@@ -25,7 +25,7 @@
 
 @property (weak, nonatomic) id<CMMediaManagerDelegate> delegate;
 
-+ (CMMediaManager *)sharedManager;
++ (instancetype)sharedManager;
 
 - (NSDictionary *)metadataForKeys:(NSArray *)keys trackAtURL:(NSURL *)url;
 

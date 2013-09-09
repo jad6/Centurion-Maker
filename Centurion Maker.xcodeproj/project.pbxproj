@@ -16,6 +16,7 @@
 		05654C7E1757CACC00C7235F /* NSManagedObject+Appulse.m in Sources */ = {isa = PBXBuildFile; fileRef = 05654C7D1757CACC00C7235F /* NSManagedObject+Appulse.m */; };
 		05A9AA8B175D4A000098C8AB /* Track.m in Sources */ = {isa = PBXBuildFile; fileRef = 05A9AA8A175D4A000098C8AB /* Track.m */; };
 		05CBE58C175938BA009B2AC0 /* CMMediaManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 05CBE58B175938BA009B2AC0 /* CMMediaManager.m */; };
+		05D00AEE17DD5C9600789012 /* CMExpiryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 05D00AED17DD5C9600789012 /* CMExpiryManager.m */; };
 		05EC7AB7167AE9660062911E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05EC7AB6167AE9660062911E /* Cocoa.framework */; };
 		05EC7AC1167AE9660062911E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 05EC7ABF167AE9660062911E /* InfoPlist.strings */; };
 		05EC7AC3167AE9660062911E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EC7AC2167AE9660062911E /* main.m */; };
@@ -50,6 +51,8 @@
 		05A9AA8A175D4A000098C8AB /* Track.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Track.m; sourceTree = "<group>"; };
 		05CBE58A175938BA009B2AC0 /* CMMediaManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMMediaManager.h; sourceTree = "<group>"; };
 		05CBE58B175938BA009B2AC0 /* CMMediaManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMMediaManager.m; sourceTree = "<group>"; };
+		05D00AEC17DD5C9600789012 /* CMExpiryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMExpiryManager.h; sourceTree = "<group>"; };
+		05D00AED17DD5C9600789012 /* CMExpiryManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMExpiryManager.m; sourceTree = "<group>"; };
 		05EC7AB2167AE9660062911E /* Centurion Maker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Centurion Maker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		05EC7AB6167AE9660062911E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		05EC7AB9167AE9660062911E /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -238,6 +241,8 @@
 				05F406D9175BFDC2009FCE81 /* NSNumber+DurationFormat.m */,
 				05F406DB175BFE7F009FCE81 /* NSString+DurationFormat.h */,
 				05F406DC175BFE7F009FCE81 /* NSString+DurationFormat.m */,
+				05D00AEC17DD5C9600789012 /* CMExpiryManager.h */,
+				05D00AED17DD5C9600789012 /* CMExpiryManager.m */,
 			);
 			name = Others;
 			sourceTree = "<group>";
@@ -280,7 +285,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = CM;
-				LastUpgradeCheck = 0450;
+				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = Jad;
 			};
 			buildConfigurationList = 05EC7AAC167AE9660062911E /* Build configuration list for PBXProject "Centurion Maker" */;
@@ -332,6 +337,7 @@
 				055424D0175BD95E0062080A /* CMTimeFormatter.m in Sources */,
 				05F406DA175BFDC2009FCE81 /* NSNumber+DurationFormat.m in Sources */,
 				05F406DD175BFE7F009FCE81 /* NSString+DurationFormat.m in Sources */,
+				05D00AEE17DD5C9600789012 /* CMExpiryManager.m in Sources */,
 				05F406E1175C1524009FCE81 /* NSPopover+Message.m in Sources */,
 				05F406E2175C1524009FCE81 /* NSString+Size.m in Sources */,
 				05A9AA8B175D4A000098C8AB /* Track.m in Sources */,
@@ -372,7 +378,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -402,7 +407,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;

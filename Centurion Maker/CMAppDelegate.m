@@ -10,6 +10,8 @@
 
 #import "CMMainViewController.h"
 
+#import "CMExpiryManager.h"
+
 @interface CMAppDelegate ()
 
 @property (strong, nonatomic) CMMainViewController *mainVC;
@@ -31,6 +33,8 @@
     [self.window setDelegate:self.mainVC];
     self.mainVC.managedObjectContext = self.managedObjectContext;
 //    self.mainVC.pathToAppSupport = [self applicationFilesDirectory];
+    
+    [[CMExpiryManager sharedManager] handleExpiryAlertingInWindow:self.window];
 }
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag
