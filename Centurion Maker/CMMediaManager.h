@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Jad. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 
 @class CMMediaManager;
 @class Track;
@@ -23,7 +23,7 @@
 
 @interface CMMediaManager : NSObject
 
-@property (weak, nonatomic) id<CMMediaManagerDelegate> delegate;
+@property (weak, nonatomic) id <CMMediaManagerDelegate> delegate;
 
 + (instancetype)sharedManager;
 
@@ -31,7 +31,7 @@
 
 - (void)createCenturionMixAtURL:(NSURL *)url
                      fromTracks:(NSArray *)tracks
-                       delegate:(id<CMMediaManagerDelegate>)delegate
+                       delegate:(id <CMMediaManagerDelegate> )delegate
                      completion:(void (^)(BOOL success))completionBlock;
 
 - (void)cancelCenturionMix;

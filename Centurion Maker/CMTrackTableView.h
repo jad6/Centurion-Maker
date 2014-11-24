@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Jad. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+@import Cocoa;
 
 @protocol CMTrackTableViewDelegate <NSObject, NSTableViewDelegate>
 
@@ -20,6 +20,6 @@
 
 @interface CMTrackTableView : NSTableView
 
-@property (weak, nonatomic) IBOutlet id<CMTrackTableViewDelegate> delegate;
+@property (weak, nonatomic) IBOutlet id <CMTrackTableViewDelegate> delegate;
 
 @end

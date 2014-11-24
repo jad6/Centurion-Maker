@@ -19,12 +19,12 @@
 + (NSArray *)findAllInContext:(NSManagedObjectContext *)context;
 
 + (NSArray *)findAllByAttribute:(NSString *)attribute
-                     value:(id)value
-                 inContext:(NSManagedObjectContext *)context;
+                          value:(id)value
+                      inContext:(NSManagedObjectContext *)context;
 
 + (id)findFirstByAttribute:(NSString *)attribute
-                       value:(id)value
-                   inContext:(NSManagedObjectContext *)context;
+                     value:(id)value
+                 inContext:(NSManagedObjectContext *)context;
 
 + (NSArray *)fetchRequest:(void (^)(NSFetchRequest *fs))fetchRequestBlock
                 inContext:(NSManagedObjectContext *)context;

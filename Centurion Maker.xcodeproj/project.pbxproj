@@ -17,15 +17,12 @@
 		05A9AA8B175D4A000098C8AB /* Track.m in Sources */ = {isa = PBXBuildFile; fileRef = 05A9AA8A175D4A000098C8AB /* Track.m */; };
 		05CBE58C175938BA009B2AC0 /* CMMediaManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 05CBE58B175938BA009B2AC0 /* CMMediaManager.m */; };
 		05D00AEE17DD5C9600789012 /* CMExpiryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 05D00AED17DD5C9600789012 /* CMExpiryManager.m */; };
-		05EC7AB7167AE9660062911E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05EC7AB6167AE9660062911E /* Cocoa.framework */; };
 		05EC7AC1167AE9660062911E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 05EC7ABF167AE9660062911E /* InfoPlist.strings */; };
 		05EC7AC3167AE9660062911E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EC7AC2167AE9660062911E /* main.m */; };
 		05EC7AC7167AE9660062911E /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 05EC7AC5167AE9660062911E /* Credits.rtf */; };
 		05EC7ACA167AE9660062911E /* CMAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EC7AC9167AE9660062911E /* CMAppDelegate.m */; };
 		05EC7ACD167AE9660062911E /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 05EC7ACB167AE9660062911E /* MainMenu.xib */; };
 		05EC7AD0167AE9660062911E /* Centurion_Maker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 05EC7ACE167AE9660062911E /* Centurion_Maker.xcdatamodeld */; };
-		05EC7ADC167AE9B50062911E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05EC7ADB167AE9B50062911E /* AVFoundation.framework */; };
-		05EC7ADE167AE9BB0062911E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05EC7ADD167AE9BB0062911E /* CoreMedia.framework */; };
 		05EC7AF0167B29090062911E /* ComputerData.caf in Resources */ = {isa = PBXBuildFile; fileRef = 05EC7AEF167B29090062911E /* ComputerData.caf */; };
 		05F406DA175BFDC2009FCE81 /* NSNumber+DurationFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 05F406D9175BFDC2009FCE81 /* NSNumber+DurationFormat.m */; };
 		05F406DD175BFE7F009FCE81 /* NSString+DurationFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 05F406DC175BFE7F009FCE81 /* NSString+DurationFormat.m */; };
@@ -86,9 +83,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				05EC7ADE167AE9BB0062911E /* CoreMedia.framework in Frameworks */,
-				05EC7ADC167AE9B50062911E /* AVFoundation.framework in Frameworks */,
-				05EC7AB7167AE9660062911E /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -397,7 +391,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
@@ -420,7 +414,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -428,10 +422,12 @@
 		05EC7AD4167AE9660062911E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Centurion Maker/Centurion Maker-Prefix.pch";
 				INFOPLIST_FILE = "Centurion Maker/Centurion Maker-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -440,10 +436,12 @@
 		05EC7AD5167AE9660062911E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Centurion Maker/Centurion Maker-Prefix.pch";
 				INFOPLIST_FILE = "Centurion Maker/Centurion Maker-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

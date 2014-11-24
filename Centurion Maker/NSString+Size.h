@@ -6,7 +6,7 @@
 //  Based on the Stack Overflow answer: http://stackoverflow.com/a/1993376/187954
 //
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 
 @interface NSString (Size)
 

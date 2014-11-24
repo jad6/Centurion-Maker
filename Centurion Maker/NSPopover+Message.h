@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 Code of Interest. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+@import Cocoa;
 
 @interface NSPopover (Message)
 

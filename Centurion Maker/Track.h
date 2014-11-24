@@ -12,14 +12,14 @@
 
 @interface Track : NSManagedObject
 
-@property (nonatomic, retain) NSString * artist;
-@property (nonatomic, retain) NSString * filePath;
-@property (nonatomic, retain) NSString * identifier;
-@property (nonatomic, retain) NSNumber * invalid;
-@property (nonatomic, retain) NSNumber * length;
-@property (nonatomic, retain) NSNumber * mixStartTime;
-@property (nonatomic, retain) NSNumber * order;
-@property (nonatomic, retain) NSString * title;
-@property (nonatomic, retain) NSNumber * playing;
+@property (nonatomic, retain) NSString *artist;
+@property (nonatomic, retain) NSString *filePath;
+@property (nonatomic, retain) NSString *identifier;
+@property (nonatomic, retain) NSNumber *invalid;
+@property (nonatomic, retain) NSNumber *length;
+@property (nonatomic, retain) NSNumber *mixStartTime;
+@property (nonatomic, retain) NSNumber *order;
+@property (nonatomic, retain) NSString *title;
+@property (nonatomic, retain) NSNumber *playing;
 
 @end

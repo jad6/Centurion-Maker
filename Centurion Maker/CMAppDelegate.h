@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 Jad. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+@import Cocoa;
 
 #define FIRST_RUN_KEY @"CMFirstRun"
 #define FIRST_PLAY_KEY @"CMFirstPlay"

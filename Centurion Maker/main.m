@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 Jad. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+@import Cocoa;
 
 int main(int argc, char *argv[])
 {

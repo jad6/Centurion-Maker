@@ -6,23 +6,23 @@
 //  Copyright (c) 2013 Jad. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 
 @class CMTimeFormatter;
 
 @protocol CMTimeFormatterDelegate <NSObject>
 
-- (void)timeFormatter:(CMTimeFormatter *)timeFormatter
-   enteredInvalidData:(NSUInteger)numInvalidTries;
+- (void) timeFormatter:(CMTimeFormatter *)timeFormatter
+    enteredInvalidData:(NSUInteger)numInvalidTries;
 
 @end
 
 @interface CMTimeFormatter : NSFormatter
 
-@property (weak, nonatomic) id<CMTimeFormatterDelegate> delegate;
+@property (weak, nonatomic) id <CMTimeFormatterDelegate> delegate;
 
 @property (nonatomic) NSInteger maxSecondsValue;
 
-- (id)initWithDelegate:(id<CMTimeFormatterDelegate>)delegate;
+- (id)initWithDelegate:(id <CMTimeFormatterDelegate> )delegate;
 
 @end

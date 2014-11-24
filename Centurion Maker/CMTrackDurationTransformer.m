@@ -12,27 +12,24 @@
 
 @implementation CMTrackDurationTransformer
 
-+ (Class)transformedValueClass
-{
-    return [NSString class];
++ (Class)transformedValueClass {
+	return [NSString class];
 }
 
-- (id)transformedValue:(id)value
-{
-    if (!value) {
-        return nil;
-    } else {
-        return [value stringTrackDurationForInput:NO];
-    }
+- (id)transformedValue:(id)value {
+	if (!value) {
+		return nil;
+	} else {
+		return [value stringTrackDurationForInput:NO];
+	}
 }
 
-- (id)reverseTransformedValue:(id)value
-{
-    if (!value) {
-        return @(0);
-    } else {
-        return [value numberTrackDuration];
-    }
+- (id)reverseTransformedValue:(id)value {
+	if (!value) {
+		return @(0);
+	} else {
+		return [value numberTrackDuration];
+	}
 }
 
 @end

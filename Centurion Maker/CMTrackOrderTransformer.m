@@ -10,18 +10,16 @@
 
 @implementation CMTrackOrderTransformer
 
-+ (Class)transformedValueClass
-{
-    return [NSNumber class];
++ (Class)transformedValueClass {
+	return [NSNumber class];
 }
 
-- (id)transformedValue:(id)value
-{
-    if (!value) {
-        return nil;
-    } else {
-        return @([value integerValue] + 1);
-    }
+- (id)transformedValue:(id)value {
+	if (!value) {
+		return nil;
+	} else {
+		return @([value integerValue] + 1);
+	}
 }
 
 @end
