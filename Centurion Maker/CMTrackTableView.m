@@ -8,7 +8,7 @@
 
 #import "CMTrackTableView.h"
 
-#import "CMAppDelegate.h"
+#import "CMCoreDataManager.h"
 
 @interface CMTrackTableView ()
 
@@ -34,8 +34,10 @@
 
 - (void)textDidEndEditing:(NSNotification *)notification {
 	[super textDidEndEditing:notification];
-
-	[(CMAppDelegate *)[NSApp delegate] saveAction : nil];
+    
+    [[CMCoreDataManager sharedManager].dataStore save:^(NSError *error) {
+        [error handle];
+    }];
 }
 
 @end

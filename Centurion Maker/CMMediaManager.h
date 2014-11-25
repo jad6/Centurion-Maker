@@ -9,7 +9,7 @@
 @import Foundation;
 
 @class CMMediaManager;
-@class Track;
+@class CMTrack;
 
 @protocol CMMediaManagerDelegate <NSObject>
 
@@ -36,7 +36,7 @@
 
 - (void)cancelCenturionMix;
 
-- (void)startPreviewTrack:(Track *)track
+- (void)startPreviewTrack:(CMTrack *)track
      withCurrentTimeBlock:(void (^)(NSInteger seconds))currentTimeBlcok;
 - (void)stopPreview;
 

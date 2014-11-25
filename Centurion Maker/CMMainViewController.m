@@ -8,6 +8,8 @@
 
 #import "CMMainViewController.h"
 
+#import "CMCoreDataManager.h"
+
 #import "CMAppDelegate.h"
 #import "CMMediaManager.h"
 #import "CMTrackTableView.h"
@@ -15,8 +17,7 @@
 
 #import "DurationFormat.h"
 #import "NSPopover+Message.h"
-#import "NSManagedObject+Appulse.h"
-#import "Track.h"
+#import "CMTrack.h"
 
 #define MAX_NUM_TRACKS 150
 
@@ -29,7 +30,11 @@
 @property (weak, nonatomic) IBOutlet CMTrackTableView *tracksTableView;
 
 @property (strong, nonatomic) IBOutlet NSArrayController *trackArrayController;
-@property (strong, nonatomic) Track *playingTrack;
+
+@property (strong, nonatomic) CMTrack *playingTrack;
+
+@property (strong, nonatomic) DataStore *dataStore;
+@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
 @property (nonatomic) NSUInteger totalNumTracks;
 @property (nonatomic) BOOL creatingCenturion, previewPlaying;
@@ -106,7 +111,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
 	}
 }
 
-#pragma mark - Setters
+#pragma mark - Setters & Getters
 
 - (void)setTrackArrayController:(NSArrayController *)trackArrayController {
 	if (_trackArrayController != trackArrayController) {
@@ -117,12 +122,18 @@ static NSInteger kHourOfPowerNumTracks = 60;
 	}
 }
 
-- (void)setManagedObjectContext:(NSManagedObjectContext *)managedObjectContext {
-	if (_managedObjectContext != managedObjectContext) {
-		_managedObjectContext = managedObjectContext;
-	}
+- (DataStore *)dataStore {
+    if (self->_dataStore == nil) {
+        self->_dataStore = [CMCoreDataManager sharedManager].dataStore;
+    }
+    return self->_dataStore;
+}
 
-	[self refreshDisplay];
+- (NSManagedObjectContext *)managedObjectContext {
+    if (self->_managedObjectContext == nil) {
+        self->_managedObjectContext = self.dataStore.mainManagedObjectContext;
+    }
+    return self->_managedObjectContext;
 }
 
 #pragma mark - Logic
@@ -139,14 +150,16 @@ static NSInteger kHourOfPowerNumTracks = 60;
 }
 
 - (void)saveAndRefreshData:(BOOL)refresh {
-	[(CMAppDelegate *)[NSApp delegate] saveAction : nil];
-
-	if (refresh) {
-		[self.trackArrayController rearrangeObjects];
-	}
+    [self.dataStore save: ^(NSError *error) {
+        [error handle];
+        
+        if (refresh) {
+            [self.trackArrayController rearrangeObjects];
+        }
+    }];
 }
 
-- (void)refreshPreviewSliderForTrack:(Track *)track currentTime:(NSInteger)seconds {
+- (void)refreshPreviewSliderForTrack:(CMTrack *)track currentTime:(NSInteger)seconds {
 	if (!track) {
 		[self.previewIndicator setDoubleValue:0];
 
@@ -177,7 +190,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
 		}
 	}
 
-	Track *track = [self.trackArrayController arrangedObjects][clickedRow];
+	CMTrack *track = [self.trackArrayController arrangedObjects][clickedRow];
 
 	if (![self isValidTrack:track fileManager:[NSFileManager defaultManager]]) {
 		[self saveAndRefreshData:NO];
@@ -236,7 +249,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
 	[self refreshDisplay];
 }
 
-- (BOOL)isValidTrack:(Track *)track fileManager:(NSFileManager *)fileManager {
+- (BOOL)isValidTrack:(CMTrack *)track fileManager:(NSFileManager *)fileManager {
 	track.invalid = @(![fileManager fileExistsAtPath:track.filePath]);
 
 	return ![track.invalid boolValue];
@@ -245,11 +258,13 @@ static NSInteger kHourOfPowerNumTracks = 60;
 - (NSArray *)invalidTracks {
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	NSMutableArray *nonExistingTracks = [[NSMutableArray alloc] init];
-	[[self.trackArrayController arrangedObjects] enumerateObjectsUsingBlock: ^(Track *track, NSUInteger idx, BOOL *stop) {
-	    if (![self isValidTrack:track fileManager:fileManager]) {
-	        [nonExistingTracks addObject:track];
-		}
-	}];
+    NSArray *arrangedObjects = [self.trackArrayController arrangedObjects];
+    
+    for (CMTrack *track in arrangedObjects) {
+        if (![self isValidTrack:track fileManager:fileManager]) {
+            [nonExistingTracks addObject:track];
+        }
+    }
 
 	if ([nonExistingTracks count] != 0) {
 		[self saveAndRefreshData:YES];
@@ -275,7 +290,14 @@ static NSInteger kHourOfPowerNumTracks = 60;
 }
 
 - (void)refreshDisplay {
-	NSInteger trackCount = [Track countInContext:self.managedObjectContext];
+    __block NSInteger trackCount = 0;
+    [self.dataStore performBackgroundClosureAndWait:^(NSManagedObjectContext *context) {
+        NSString *entityName = [self.dataStore entityNameForObjectClass:[CMTrack class] withClassPrefix:@"CM"];
+        NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:entityName];
+        
+        NSError *error = nil;
+        trackCount = [context countForFetchRequest:request error:&error];
+    }];
 
 	[self.centurionButton setEnabled:((trackCount == kCenturionNumTracks)
 	                                  || (trackCount == kHourOfPowerNumTracks))];
@@ -339,14 +361,18 @@ static NSInteger kHourOfPowerNumTracks = 60;
 		    if ([metadataDict[@"length"] doubleValue] < 60) {
 		        [tooShortTrackNames addObject:metadataDict[@"title"]];
 			} else {
-		        [Track newEntity:@"Track" inContext:self.managedObjectContext idAttribute:@"identifier" value:[[NSString alloc] initWithFormat:@"%@%@", [fileURL absoluteString], [NSDate date]] onInsert: ^(Track *track) {
-		            track.filePath = [fileURL path];
-		            track.order = @(self.totalNumTracks + idx);
-
-		            [metadataDict enumerateKeysAndObjectsUsingBlock: ^(id key, id obj, BOOL *stop) {
-		                [track setValue:obj forKey:key];
-					}];
-				}];
+                [self.dataStore performClosureAndWait:^(NSManagedObjectContext *context) {
+                    NSString *entityName = [self.dataStore entityNameForObjectClass:[CMTrack class] withClassPrefix:@"CM"];
+                    [context insertObjectWithEntityName:entityName insertion:^(CMTrack *track) {
+                        track.identifier = [[NSString alloc] initWithFormat:@"%@%@", [fileURL absoluteString], [NSDate date]];
+                        track.filePath = [fileURL path];
+                        track.order = @(self.totalNumTracks + idx);
+                        
+                        [metadataDict enumerateKeysAndObjectsUsingBlock: ^(id key, id obj, BOOL *stop) {
+                            [track setValue:obj forKey:key];
+                        }];
+                    }];
+                }];
 			}
 		}];
 
@@ -389,17 +415,21 @@ static NSInteger kHourOfPowerNumTracks = 60;
 	[self stopSelectedTrack];
 
 	// Remove tracks here
-	NSArray *allTracks = [Track findAllInContext:self.managedObjectContext];
+    [self.dataStore performBackgroundClosureAndWait:^(NSManagedObjectContext *context) {
+        NSError *error = nil;
+        
+        NSString *entityName = [self.dataStore entityNameForObjectClass:[CMTrack class] withClassPrefix:@"CM"];
+        NSArray *allTracks = [context findAllForEntityWithEntityName:entityName error:&error];
+        
+        for (CMTrack *track in allTracks) {
+            [context deleteObject:track];
+        }
+    }];
+    
+    self.totalNumTracks = 0;
 
-	[allTracks enumerateObjectsUsingBlock: ^(Track *track, NSUInteger idx, BOOL *stop) {
-	    [self.managedObjectContext deleteObject:track];
-	}];
-
-	self.totalNumTracks = 0;
-
-	[self refreshDisplay];
-
-	[self saveAndRefreshData:NO];
+    [self refreshDisplay];
+    [self saveAndRefreshData:NO];
 }
 
 - (IBAction)centurion:(id)sender {
@@ -446,7 +476,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
 }
 
 - (IBAction)openInFinder:(id)sender {
-	Track *track = [self.trackArrayController arrangedObjects][[self.tracksTableView selectedRow]];
+	CMTrack *track = [self.trackArrayController arrangedObjects][[self.tracksTableView selectedRow]];
 
 	if ([track.invalid boolValue]) {
         NSAlert *alert = [[NSAlert alloc] init];
@@ -546,21 +576,26 @@ static NSInteger kHourOfPowerNumTracks = 60;
 }
 
 - (NSArray *)tracksWithPredicate:(NSPredicate *)predicate {
-	return [Track fetchRequest: ^(NSFetchRequest *fs) {
-	    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"order" ascending:YES];
-	    [fs setSortDescriptors:@[sortDescriptor]];
-	    [fs setPredicate:predicate];
-	} inContext:self.managedObjectContext];
+    __block NSArray *tracks = nil;
+    [self.dataStore performClosureAndWait:^(NSManagedObjectContext *context) {
+        NSError *error = nil;
+        NSString *entityName = [self.dataStore entityNameForObjectClass:[CMTrack class] withClassPrefix:@"CM"];
+        NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"order" ascending:YES];
+        tracks = [context findEntitiesForEntityName:entityName withPredicate:predicate andSortDescriptors:@[sortDescriptor] error:&error];
+        [error handle];
+    }];
+    
+    return tracks;
 }
 
 - (NSInteger)reorderTracks:(NSArray *)tracks startingAt:(NSInteger)value {
 	__block NSInteger currentTrack = value;
 
 	if (tracks && ([tracks count] > 0)) {
-		[tracks enumerateObjectsUsingBlock: ^(Track *track, NSUInteger idx, BOOL *stop) {
+        for (CMTrack *track in tracks) {
 		    track.order = @(currentTrack);
 		    currentTrack++;
-		}];
+		}
 	}
 
 	return currentTrack;
@@ -571,8 +606,16 @@ static NSInteger kHourOfPowerNumTracks = 60;
 - (void)tableView:(NSTableView *)tableView didPressDeleteKeyForRowIndexes:(NSIndexSet *)indexSet {
 	[self deleteSelectedtracks];
 
-	[self reorderTracks:[Track findAllInContext:self.managedObjectContext] startingAt:0];
-	[self.trackArrayController rearrangeObjects];
+    [self.dataStore performBackgroundClosureAndSave:^(NSManagedObjectContext *context) {
+        NSError *error = nil;
+        
+        NSString *entityName = [self.dataStore entityNameForObjectClass:[CMTrack class] withClassPrefix:@"CM"];
+        NSArray *allTracks = [context findAllForEntityWithEntityName:entityName error:&error];
+
+        [self reorderTracks:allTracks startingAt:0];
+    } completion:^(NSManagedObjectContext *context, NSError *error) {
+        [self.trackArrayController rearrangeObjects];
+    }];
 }
 
 - (BOOL)tableView:(NSTableView *)tableView shouldRespondToDeleteKeyForRowIndexes:(NSIndexSet *)indexSet {
@@ -582,7 +625,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
 #pragma mark - Table view
 
 - (BOOL)tableView:(NSTableView *)tableView shouldEditTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-	Track *track = [self.trackArrayController arrangedObjects][row];
+	CMTrack *track = [self.trackArrayController arrangedObjects][row];
 
 	return !([track.invalid boolValue] || [track.playing boolValue]);
 }
@@ -591,7 +634,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
     willDisplayCell:(id)cell
      forTableColumn:(NSTableColumn *)tableColumn
                 row:(NSInteger)row {
-	Track *track = [self.trackArrayController arrangedObjects][row];
+	CMTrack *track = [self.trackArrayController arrangedObjects][row];
 	if ([track.invalid boolValue]) {
 		if ([tableColumn.identifier isEqualToString:@"Path"]) {
 			[cell setTitle:@"Error"];
@@ -657,7 +700,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
 	}
 
 	for (NSInteger i = 0; i < [draggedItemsArray count]; i++) {
-		Track *track = draggedItemsArray[i];
+		CMTrack *track = draggedItemsArray[i];
 		track.order = @(-1);
 	}
 
@@ -681,6 +724,7 @@ static NSInteger kHourOfPowerNumTracks = 60;
 
 - (void)windowDidBecomeMain:(NSNotification *)notification {
 	[self handleFirstRunOnLaunch];
+    [self refreshDisplay];
 }
 
 - (BOOL)windowShouldClose:(id)sender {

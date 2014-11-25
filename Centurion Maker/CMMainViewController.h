@@ -12,10 +12,7 @@
 
 @interface CMMainViewController : NSViewController <NSWindowDelegate>
 
-@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
-
 - (void)handleFirstRunOnLaunch;
-
 - (void)deleteSelectedtracks;
 
 @end

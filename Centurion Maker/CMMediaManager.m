@@ -9,7 +9,7 @@
 @import AVFoundation;
 
 #import "CMMediaManager.h"
-#import "Track.h"
+#import "CMTrack.h"
 
 @interface CMMediaManager ()
 
@@ -37,7 +37,7 @@
 #pragma mark - Logic
 
 #warning message
-- (NSNumber *)sampleRateOfTrack:(Track *)track {
+- (NSNumber *)sampleRateOfTrack:(CMTrack *)track {
 	NSError *error = nil;
 	AVAudioPlayer *audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[[NSURL alloc] initFileURLWithPath:track.filePath] error:&error];
 
@@ -65,11 +65,11 @@
 	NSMutableString *invalidTracks = [[NSMutableString alloc] init];
 	__block NSInteger numInvalidTracks = 0;
 	[tracksSampleRates enumerateKeysAndObjectsUsingBlock: ^(NSNumber *sampleRate, NSArray *tracks, BOOL *stop) {
-	    [tracks enumerateObjectsUsingBlock: ^(Track *track, NSUInteger idx, BOOL *stop) {
+        for (CMTrack *track in tracks) {
 	        [invalidTracks appendFormat:@"#%@ - \"%@\" at %@Hz\n", track.order, track.title, sampleRate];
 	        track.invalid = @(YES);
 	        numInvalidTracks++;
-		}];
+		}
 	}];
 
 	NSString *filePlural = (numInvalidTracks > 1) ? @"these files" : @"this file";
@@ -168,13 +168,13 @@
 
 	[metadataDict setObject:@(CMTimeGetSeconds(asset.duration)) forKey:@"length"];
 
-	[keys enumerateObjectsUsingBlock: ^(NSString *key, NSUInteger idx, BOOL *stop) {
+    for (NSString *key in keys) {
 	    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"commonKey LIKE %@", key];
 	    AVMetadataItem *item = [[metadata filteredArrayUsingPredicate:predicate] lastObject];
 	    if (item) {
 	        [metadataDict setObject:item.stringValue forKey:key];
 		}
-	}];
+    }
 
 	return metadataDict;
 }
@@ -203,7 +203,7 @@
 #warning This is here because of a bug with mixing different sample rates. Might be fixed later, WWDC 2013 engineers know about it. Thanks David.
 	    NSMutableDictionary *tracksSampleRates = [[NSMutableDictionary alloc] init];
 
-	    for (Track *track in tracks) {
+	    for (CMTrack *track in tracks) {
 	        AVAsset *asset = [AVAsset assetWithURL:[[NSURL alloc] initFileURLWithPath:track.filePath]];
 
 	        dispatch_async(dispatch_get_main_queue(), ^{
@@ -269,7 +269,7 @@
 	[self.exportSession cancelExport];
 }
 
-- (void)startPreviewTrack:(Track *)track
+- (void)startPreviewTrack:(CMTrack *)track
      withCurrentTimeBlock:(void (^)(NSInteger seconds))currentTimeBlcok;
 {
 	if (self.player)

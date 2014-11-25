@@ -9,19 +9,22 @@
 /* Begin PBXBuildFile section */
 		050EA48E175925E600FC905A /* CMTrackTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 050EA48D175925E600FC905A /* CMTrackTableView.m */; };
 		051AA91B16EF51970095FF6E /* CMMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 051AA91916EF51970095FF6E /* CMMainViewController.m */; };
-		051AA91C16EF51970095FF6E /* CMMainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 051AA91A16EF51970095FF6E /* CMMainViewController.xib */; };
+		052787061A24262F0006ED3E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 052787051A24262F0006ED3E /* Images.xcassets */; };
+		052E3C991A242E4900BB2FC0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 052E3C981A242E4900BB2FC0 /* Main.storyboard */; };
 		05356129175A8B9C00243BD2 /* CMTrackDurationTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 05356128175A8B9C00243BD2 /* CMTrackDurationTransformer.m */; };
 		0535612C175A8CD400243BD2 /* CMTrackOrderTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0535612B175A8CD400243BD2 /* CMTrackOrderTransformer.m */; };
+		0543D4501A236B5C001E1661 /* CMCoreDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0543D44F1A236B5C001E1661 /* CMCoreDataManager.m */; };
+		0543D4581A24174A001E1661 /* NSError+CenturionMaker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0543D4571A24174A001E1661 /* NSError+CenturionMaker.m */; };
+		0543D45F1A241FED001E1661 /* CMTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 0543D45E1A241FED001E1661 /* CMTrack.m */; };
+		0543D4611A2420C2001E1661 /* DataStore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0543D4481A236A49001E1661 /* DataStore.framework */; };
+		0543D4621A2420C2001E1661 /* DataStore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0543D4481A236A49001E1661 /* DataStore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		055424D0175BD95E0062080A /* CMTimeFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 055424CF175BD95E0062080A /* CMTimeFormatter.m */; };
-		05654C7E1757CACC00C7235F /* NSManagedObject+Appulse.m in Sources */ = {isa = PBXBuildFile; fileRef = 05654C7D1757CACC00C7235F /* NSManagedObject+Appulse.m */; };
-		05A9AA8B175D4A000098C8AB /* Track.m in Sources */ = {isa = PBXBuildFile; fileRef = 05A9AA8A175D4A000098C8AB /* Track.m */; };
 		05CBE58C175938BA009B2AC0 /* CMMediaManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 05CBE58B175938BA009B2AC0 /* CMMediaManager.m */; };
 		05D00AEE17DD5C9600789012 /* CMExpiryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 05D00AED17DD5C9600789012 /* CMExpiryManager.m */; };
 		05EC7AC1167AE9660062911E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 05EC7ABF167AE9660062911E /* InfoPlist.strings */; };
 		05EC7AC3167AE9660062911E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EC7AC2167AE9660062911E /* main.m */; };
 		05EC7AC7167AE9660062911E /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 05EC7AC5167AE9660062911E /* Credits.rtf */; };
 		05EC7ACA167AE9660062911E /* CMAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EC7AC9167AE9660062911E /* CMAppDelegate.m */; };
-		05EC7ACD167AE9660062911E /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 05EC7ACB167AE9660062911E /* MainMenu.xib */; };
 		05EC7AD0167AE9660062911E /* Centurion_Maker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 05EC7ACE167AE9660062911E /* Centurion_Maker.xcdatamodeld */; };
 		05EC7AF0167B29090062911E /* ComputerData.caf in Resources */ = {isa = PBXBuildFile; fileRef = 05EC7AEF167B29090062911E /* ComputerData.caf */; };
 		05F406DA175BFDC2009FCE81 /* NSNumber+DurationFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 05F406D9175BFDC2009FCE81 /* NSNumber+DurationFormat.m */; };
@@ -30,22 +33,86 @@
 		05F406E2175C1524009FCE81 /* NSString+Size.m in Sources */ = {isa = PBXBuildFile; fileRef = 05F406E0175C1524009FCE81 /* NSString+Size.m */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		0543D4431A236A49001E1661 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0543D43C1A236A49001E1661 /* DataStore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 057C537D1A0DDBC800DC6360;
+			remoteInfo = "DataStore-iOS";
+		};
+		0543D4451A236A49001E1661 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0543D43C1A236A49001E1661 /* DataStore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 057C53881A0DDBC900DC6360;
+			remoteInfo = "DataStore-iOSTests";
+		};
+		0543D4471A236A49001E1661 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0543D43C1A236A49001E1661 /* DataStore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 05BE35F51A14785B008AAE7B;
+			remoteInfo = "DataStore-Mac";
+		};
+		0543D4491A236A49001E1661 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0543D43C1A236A49001E1661 /* DataStore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 05BE35FF1A14785B008AAE7B;
+			remoteInfo = "DataStore-MacTests";
+		};
+		0543D4521A236C0F001E1661 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0543D43C1A236A49001E1661 /* DataStore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 05BE35F41A14785B008AAE7B;
+			remoteInfo = "DataStore-Mac";
+		};
+		0543D4631A2420C2001E1661 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0543D43C1A236A49001E1661 /* DataStore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 05BE35F41A14785B008AAE7B;
+			remoteInfo = "DataStore-Mac";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0543D4651A2420C2001E1661 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				0543D4621A2420C2001E1661 /* DataStore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		050EA48C175925E600FC905A /* CMTrackTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMTrackTableView.h; sourceTree = "<group>"; };
 		050EA48D175925E600FC905A /* CMTrackTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMTrackTableView.m; sourceTree = "<group>"; };
 		051AA91816EF51970095FF6E /* CMMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMMainViewController.h; sourceTree = "<group>"; };
 		051AA91916EF51970095FF6E /* CMMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMMainViewController.m; sourceTree = "<group>"; };
-		051AA91A16EF51970095FF6E /* CMMainViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CMMainViewController.xib; sourceTree = "<group>"; };
+		052787051A24262F0006ED3E /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		052787071A242CE40006ED3E /* icon-big.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-big.png"; sourceTree = "<group>"; };
+		052E3C981A242E4900BB2FC0 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		05356127175A8B9C00243BD2 /* CMTrackDurationTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMTrackDurationTransformer.h; sourceTree = "<group>"; };
 		05356128175A8B9C00243BD2 /* CMTrackDurationTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMTrackDurationTransformer.m; sourceTree = "<group>"; };
 		0535612A175A8CD400243BD2 /* CMTrackOrderTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMTrackOrderTransformer.h; sourceTree = "<group>"; };
 		0535612B175A8CD400243BD2 /* CMTrackOrderTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMTrackOrderTransformer.m; sourceTree = "<group>"; };
+		0543D43C1A236A49001E1661 /* DataStore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DataStore.xcodeproj; path = DataStore/DataStore.xcodeproj; sourceTree = "<group>"; };
+		0543D44E1A236B5C001E1661 /* CMCoreDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMCoreDataManager.h; sourceTree = "<group>"; };
+		0543D44F1A236B5C001E1661 /* CMCoreDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMCoreDataManager.m; sourceTree = "<group>"; };
+		0543D4561A24174A001E1661 /* NSError+CenturionMaker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+CenturionMaker.h"; sourceTree = "<group>"; };
+		0543D4571A24174A001E1661 /* NSError+CenturionMaker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+CenturionMaker.m"; sourceTree = "<group>"; };
+		0543D45D1A241FED001E1661 /* CMTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMTrack.h; sourceTree = "<group>"; };
+		0543D45E1A241FED001E1661 /* CMTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMTrack.m; sourceTree = "<group>"; };
 		055424CE175BD95E0062080A /* CMTimeFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMTimeFormatter.h; sourceTree = "<group>"; };
 		055424CF175BD95E0062080A /* CMTimeFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMTimeFormatter.m; sourceTree = "<group>"; };
-		05654C7C1757CACC00C7235F /* NSManagedObject+Appulse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+Appulse.h"; sourceTree = "<group>"; };
-		05654C7D1757CACC00C7235F /* NSManagedObject+Appulse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+Appulse.m"; sourceTree = "<group>"; };
-		05A9AA89175D4A000098C8AB /* Track.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Track.h; sourceTree = "<group>"; };
-		05A9AA8A175D4A000098C8AB /* Track.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Track.m; sourceTree = "<group>"; };
 		05CBE58A175938BA009B2AC0 /* CMMediaManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMMediaManager.h; sourceTree = "<group>"; };
 		05CBE58B175938BA009B2AC0 /* CMMediaManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMMediaManager.m; sourceTree = "<group>"; };
 		05D00AEC17DD5C9600789012 /* CMExpiryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMExpiryManager.h; sourceTree = "<group>"; };
@@ -62,7 +129,6 @@
 		05EC7AC6167AE9660062911E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		05EC7AC8167AE9660062911E /* CMAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMAppDelegate.h; sourceTree = "<group>"; };
 		05EC7AC9167AE9660062911E /* CMAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMAppDelegate.m; sourceTree = "<group>"; };
-		05EC7ACC167AE9660062911E /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		05EC7ACF167AE9660062911E /* Centurion_Maker.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Centurion_Maker.xcdatamodel; sourceTree = "<group>"; };
 		05EC7ADB167AE9B50062911E /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		05EC7ADD167AE9BB0062911E /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
@@ -83,6 +149,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0543D4611A2420C2001E1661 /* DataStore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -103,7 +170,6 @@
 			children = (
 				051AA91816EF51970095FF6E /* CMMainViewController.h */,
 				051AA91916EF51970095FF6E /* CMMainViewController.m */,
-				051AA91A16EF51970095FF6E /* CMMainViewController.xib */,
 				050EA48F175925EB00FC905A /* Subclasses */,
 			);
 			name = GUI;
@@ -112,8 +178,8 @@
 		051AA91D16EF51A30095FF6E /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
-				05654C7C1757CACC00C7235F /* NSManagedObject+Appulse.h */,
-				05654C7D1757CACC00C7235F /* NSManagedObject+Appulse.m */,
+				0543D44E1A236B5C001E1661 /* CMCoreDataManager.h */,
+				0543D44F1A236B5C001E1661 /* CMCoreDataManager.m */,
 				05EC7ACE167AE9660062911E /* Centurion_Maker.xcdatamodeld */,
 				05356126175A8B6D00243BD2 /* Value Transformers */,
 				051AA92E16EF6B4D0095FF6E /* Objects */,
@@ -124,6 +190,7 @@
 		051AA91E16EF51AD0095FF6E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				052787071A242CE40006ED3E /* icon-big.png */,
 				05EC7AEF167B29090062911E /* ComputerData.caf */,
 			);
 			name = Resources;
@@ -132,8 +199,8 @@
 		051AA92E16EF6B4D0095FF6E /* Objects */ = {
 			isa = PBXGroup;
 			children = (
-				05A9AA89175D4A000098C8AB /* Track.h */,
-				05A9AA8A175D4A000098C8AB /* Track.m */,
+				0543D45D1A241FED001E1661 /* CMTrack.h */,
+				0543D45E1A241FED001E1661 /* CMTrack.m */,
 			);
 			name = Objects;
 			sourceTree = "<group>";
@@ -147,6 +214,17 @@
 				05356128175A8B9C00243BD2 /* CMTrackDurationTransformer.m */,
 			);
 			name = "Value Transformers";
+			sourceTree = "<group>";
+		};
+		0543D43D1A236A49001E1661 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0543D4441A236A49001E1661 /* DataStore.framework */,
+				0543D4461A236A49001E1661 /* DataStoreTests.xctest */,
+				0543D4481A236A49001E1661 /* DataStore.framework */,
+				0543D44A1A236A49001E1661 /* DataStoreTests.xctest */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		05654C8D1757DA8700C7235F /* Model */ = {
@@ -163,6 +241,7 @@
 		05EC7AA7167AE9660062911E = {
 			isa = PBXGroup;
 			children = (
+				0543D43C1A236A49001E1661 /* DataStore.xcodeproj */,
 				05EC7ABC167AE9660062911E /* Centurion Maker */,
 				05EC7AB5167AE9660062911E /* Frameworks */,
 				05EC7AB3167AE9660062911E /* Products */,
@@ -203,13 +282,14 @@
 			children = (
 				05EC7AC8167AE9660062911E /* CMAppDelegate.h */,
 				05EC7AC9167AE9660062911E /* CMAppDelegate.m */,
-				05EC7ACB167AE9660062911E /* MainMenu.xib */,
+				052E3C981A242E4900BB2FC0 /* Main.storyboard */,
 				05F406D7175BFD98009FCE81 /* Others */,
 				05654C8D1757DA8700C7235F /* Model */,
 				051AA91716EF51740095FF6E /* GUI */,
 				051AA91D16EF51A30095FF6E /* CoreData */,
 				05F406E5175C1536009FCE81 /* 3rd Party */,
 				051AA91E16EF51AD0095FF6E /* Resources */,
+				052787051A24262F0006ED3E /* Images.xcassets */,
 				05EC7ABD167AE9660062911E /* Supporting Files */,
 			);
 			path = "Centurion Maker";
@@ -235,6 +315,8 @@
 				05F406D9175BFDC2009FCE81 /* NSNumber+DurationFormat.m */,
 				05F406DB175BFE7F009FCE81 /* NSString+DurationFormat.h */,
 				05F406DC175BFE7F009FCE81 /* NSString+DurationFormat.m */,
+				0543D4561A24174A001E1661 /* NSError+CenturionMaker.h */,
+				0543D4571A24174A001E1661 /* NSError+CenturionMaker.m */,
 				05D00AEC17DD5C9600789012 /* CMExpiryManager.h */,
 				05D00AED17DD5C9600789012 /* CMExpiryManager.m */,
 			);
@@ -262,10 +344,13 @@
 				05EC7AAE167AE9660062911E /* Sources */,
 				05EC7AAF167AE9660062911E /* Frameworks */,
 				05EC7AB0167AE9660062911E /* Resources */,
+				0543D4651A2420C2001E1661 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0543D4531A236C0F001E1661 /* PBXTargetDependency */,
+				0543D4641A2420C2001E1661 /* PBXTargetDependency */,
 			);
 			name = "Centurion Maker";
 			productName = "Centurion Maker";
@@ -292,6 +377,12 @@
 			mainGroup = 05EC7AA7167AE9660062911E;
 			productRefGroup = 05EC7AB3167AE9660062911E /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 0543D43D1A236A49001E1661 /* Products */;
+					ProjectRef = 0543D43C1A236A49001E1661 /* DataStore.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				05EC7AB1167AE9660062911E /* Centurion Maker */,
@@ -299,16 +390,47 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXReferenceProxy section */
+		0543D4441A236A49001E1661 /* DataStore.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DataStore.framework;
+			remoteRef = 0543D4431A236A49001E1661 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		0543D4461A236A49001E1661 /* DataStoreTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = DataStoreTests.xctest;
+			remoteRef = 0543D4451A236A49001E1661 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		0543D4481A236A49001E1661 /* DataStore.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DataStore.framework;
+			remoteRef = 0543D4471A236A49001E1661 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		0543D44A1A236A49001E1661 /* DataStoreTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = DataStoreTests.xctest;
+			remoteRef = 0543D4491A236A49001E1661 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
 /* Begin PBXResourcesBuildPhase section */
 		05EC7AB0167AE9660062911E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				052E3C991A242E4900BB2FC0 /* Main.storyboard in Resources */,
 				05EC7AC1167AE9660062911E /* InfoPlist.strings in Resources */,
 				05EC7AC7167AE9660062911E /* Credits.rtf in Resources */,
-				05EC7ACD167AE9660062911E /* MainMenu.xib in Resources */,
+				052787061A24262F0006ED3E /* Images.xcassets in Resources */,
 				05EC7AF0167B29090062911E /* ComputerData.caf in Resources */,
-				051AA91C16EF51970095FF6E /* CMMainViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -322,8 +444,8 @@
 				05EC7AC3167AE9660062911E /* main.m in Sources */,
 				05EC7ACA167AE9660062911E /* CMAppDelegate.m in Sources */,
 				05EC7AD0167AE9660062911E /* Centurion_Maker.xcdatamodeld in Sources */,
+				0543D4581A24174A001E1661 /* NSError+CenturionMaker.m in Sources */,
 				051AA91B16EF51970095FF6E /* CMMainViewController.m in Sources */,
-				05654C7E1757CACC00C7235F /* NSManagedObject+Appulse.m in Sources */,
 				050EA48E175925E600FC905A /* CMTrackTableView.m in Sources */,
 				05CBE58C175938BA009B2AC0 /* CMMediaManager.m in Sources */,
 				05356129175A8B9C00243BD2 /* CMTrackDurationTransformer.m in Sources */,
@@ -332,13 +454,27 @@
 				05F406DA175BFDC2009FCE81 /* NSNumber+DurationFormat.m in Sources */,
 				05F406DD175BFE7F009FCE81 /* NSString+DurationFormat.m in Sources */,
 				05D00AEE17DD5C9600789012 /* CMExpiryManager.m in Sources */,
+				0543D4501A236B5C001E1661 /* CMCoreDataManager.m in Sources */,
 				05F406E1175C1524009FCE81 /* NSPopover+Message.m in Sources */,
+				0543D45F1A241FED001E1661 /* CMTrack.m in Sources */,
 				05F406E2175C1524009FCE81 /* NSString+Size.m in Sources */,
-				05A9AA8B175D4A000098C8AB /* Track.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0543D4531A236C0F001E1661 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "DataStore-Mac";
+			targetProxy = 0543D4521A236C0F001E1661 /* PBXContainerItemProxy */;
+		};
+		0543D4641A2420C2001E1661 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "DataStore-Mac";
+			targetProxy = 0543D4631A2420C2001E1661 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		05EC7ABF167AE9660062911E /* InfoPlist.strings */ = {
@@ -355,14 +491,6 @@
 				05EC7AC6167AE9660062911E /* en */,
 			);
 			name = Credits.rtf;
-			sourceTree = "<group>";
-		};
-		05EC7ACB167AE9660062911E /* MainMenu.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				05EC7ACC167AE9660062911E /* en */,
-			);
-			name = MainMenu.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -422,11 +550,19 @@
 		05EC7AD4167AE9660062911E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Centurion Maker/Centurion Maker-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(CONFIGURATION_BUILD_DIR)",
+				);
 				INFOPLIST_FILE = "Centurion Maker/Centurion Maker-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -436,11 +572,19 @@
 		05EC7AD5167AE9660062911E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Centurion Maker/Centurion Maker-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(CONFIGURATION_BUILD_DIR)",
+				);
 				INFOPLIST_FILE = "Centurion Maker/Centurion Maker-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
