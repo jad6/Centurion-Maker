@@ -33,7 +33,6 @@
 
 @property (strong, nonatomic) CMTrack *playingTrack;
 
-@property (strong, nonatomic) DataStore *dataStore;
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
 @property (nonatomic) NSUInteger totalNumTracks;
@@ -49,722 +48,730 @@ static NSInteger kHourOfPowerNumTracks = 60;
 @implementation CMMainViewController
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-	self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-	if (self) {
-		// Initialization code here.
-	}
+  self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+  if (self) {
+    // Initialization code here.
+  }
 
-	return self;
+  return self;
 }
 
 - (void)loadView {
-	[super loadView];
+  [super loadView];
 
-	[self.tracksTableView registerForDraggedTypes:@[DraggedCellIdentifier]];
-	[self.tracksTableView setDoubleAction:@selector(preview:)];
+  [self.tracksTableView registerForDraggedTypes:@[DraggedCellIdentifier]];
+  [self.tracksTableView setDoubleAction:@selector(preview:)];
 }
 
 #pragma mark - First Run
 
 - (void)handleFirstRunOnLaunch {
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
-	if (![defaults valueForKey:FIRST_RUN_KEY]
-	    || [[defaults valueForKey:FIRST_RUN_KEY] boolValue]) {
-		[NSPopover showRelativeToRect:[self.addTrackButton frame]
-		                       ofView:[self view]
-		                preferredEdge:CGRectMaxYEdge
-		                       string:@"Welcome! Get started by adding tracks into the mix. You can add mutliple batches to make up to 60 or 100 tracks."
-		                     maxWidth:260.0];
-	}
+  if (![defaults valueForKey:FIRST_RUN_KEY]
+      || [[defaults valueForKey:FIRST_RUN_KEY] boolValue]) {
+    [NSPopover showRelativeToRect:[self.addTrackButton frame]
+                           ofView:[self view]
+                    preferredEdge:CGRectMaxYEdge
+                           string:@"Welcome! Get started by adding tracks into the mix. You can add mutliple batches to make up to 60 or 100 tracks."
+                         maxWidth:260.0];
+  }
 }
 
 - (void)handleFirstRunTracksAdded {
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
-	if (![defaults valueForKey:FIRST_RUN_KEY]
-	    || [[defaults valueForKey:FIRST_RUN_KEY] boolValue]) {
-		[NSPopover showRelativeToRect:[self.tracksTableView frame]
-		                       ofView:self.tracksTableView
-		                preferredEdge:CGRectMinYEdge
-		                       string:@"You can re-order the tracks before creating the mix. Also you can set the starting time of a track to be included in the mix by editing the \"Mix Start\" column."
-		                     maxWidth:300.0];
+  if (![defaults valueForKey:FIRST_RUN_KEY]
+      || [[defaults valueForKey:FIRST_RUN_KEY] boolValue]) {
+    [NSPopover showRelativeToRect:[self.tracksTableView frame]
+                           ofView:self.tracksTableView
+                    preferredEdge:CGRectMinYEdge
+                           string:@"You can re-order the tracks before creating the mix. Also you can set the starting time of a track to be included in the mix by editing the \"Mix Start\" column."
+                         maxWidth:300.0];
 
-		[defaults setValue:@(NO) forKey:FIRST_RUN_KEY];
-		[defaults synchronize];
-	}
+    [defaults setValue:@(NO) forKey:FIRST_RUN_KEY];
+    [defaults synchronize];
+  }
 }
 
 - (void)handleFirstTrackPlay {
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
-	if (![defaults valueForKey:FIRST_PLAY_KEY]
-	    || [[defaults valueForKey:FIRST_PLAY_KEY] boolValue]) {
-		[NSPopover showRelativeToRect:[self.previewButton frame]
-		                       ofView:[self view]
-		                preferredEdge:CGRectMaxXEdge
-		                       string:@"You are previewing the minute long track snippet which will be mixed. You can change the start time of the snippet by editing the \"Mix Start\" column."
-		                     maxWidth:300.0];
+  if (![defaults valueForKey:FIRST_PLAY_KEY]
+      || [[defaults valueForKey:FIRST_PLAY_KEY] boolValue]) {
+    [NSPopover showRelativeToRect:[self.previewButton frame]
+                           ofView:[self view]
+                    preferredEdge:CGRectMaxXEdge
+                           string:@"You are previewing the minute long track snippet which will be mixed. You can change the start time of the snippet by editing the \"Mix Start\" column."
+                         maxWidth:300.0];
 
-		[defaults setValue:@(NO) forKey:FIRST_PLAY_KEY];
-		[defaults synchronize];
-	}
+    [defaults setValue:@(NO) forKey:FIRST_PLAY_KEY];
+    [defaults synchronize];
+  }
 }
 
 #pragma mark - Setters & Getters
 
 - (void)setTrackArrayController:(NSArrayController *)trackArrayController {
-	if (_trackArrayController != trackArrayController) {
-		NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"order" ascending:YES];
-		[trackArrayController setSortDescriptors:@[sortDescriptor]];
+  if (_trackArrayController != trackArrayController) {
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"order" ascending:YES];
+    [trackArrayController setSortDescriptors:@[sortDescriptor]];
 
-		_trackArrayController = trackArrayController;
-	}
-}
-
-- (DataStore *)dataStore {
-    if (self->_dataStore == nil) {
-        self->_dataStore = [CMCoreDataManager sharedManager].dataStore;
-    }
-    return self->_dataStore;
+    _trackArrayController = trackArrayController;
+  }
 }
 
 - (NSManagedObjectContext *)managedObjectContext {
-    if (self->_managedObjectContext == nil) {
-        self->_managedObjectContext = self.dataStore.mainManagedObjectContext;
-    }
-    return self->_managedObjectContext;
+  if (self->_managedObjectContext == nil) {
+    self->_managedObjectContext = CMCoreDataManager.defaultManager.managedObjectContext;
+  }
+  return self->_managedObjectContext;
 }
 
 #pragma mark - Logic
 
 - (void)showNotificationSuccess:(BOOL)success {
-	NSUserNotification *notification = [[NSUserNotification alloc] init];
-	notification.title = (success) ? @"Mix Complete" : @"Mix Error";
-	notification.informativeText = (success) ? @"Check it out." : @"Well that sucks.";
-	notification.deliveryDate = [NSDate date];
-	notification.soundName = NSUserNotificationDefaultSoundName;
+  NSUserNotification *notification = [[NSUserNotification alloc] init];
+  notification.title = (success) ? @"Mix Complete" : @"Mix Error";
+  notification.informativeText = (success) ? @"Check it out." : @"Well that sucks.";
+  notification.deliveryDate = [NSDate date];
+  notification.soundName = NSUserNotificationDefaultSoundName;
 
-	NSUserNotificationCenter *center = [NSUserNotificationCenter defaultUserNotificationCenter];
-	[center scheduleNotification:notification];
+  NSUserNotificationCenter *center = [NSUserNotificationCenter defaultUserNotificationCenter];
+  [center scheduleNotification:notification];
 }
 
 - (void)saveAndRefreshData:(BOOL)refresh {
-    [self.dataStore save: ^(NSError *error) {
-        [error handle];
-        
-        if (refresh) {
-            [self.trackArrayController rearrangeObjects];
-        }
-    }];
+  [CMCoreDataManager.defaultManager saveContext:nil];
+
+  if (refresh) {
+    [self.trackArrayController rearrangeObjects];
+  }
 }
 
 - (void)refreshPreviewSliderForTrack:(CMTrack *)track currentTime:(NSInteger)seconds {
-	if (!track) {
-		[self.previewIndicator setDoubleValue:0];
+  if (!track) {
+    [self.previewIndicator setDoubleValue:0];
 
-		[self.previewStartField setStringValue:@"0:00"];
-		[self.previewEndField setStringValue:@"1:00"];
+    [self.previewStartField setStringValue:@"0:00"];
+    [self.previewEndField setStringValue:@"1:00"];
 
-		[self.previewButton setTitle:@"Play Preview"];
-	} else {
-		NSInteger secondsPlayed = seconds - [track.mixStartTime integerValue];
+    [self.previewButton setTitle:@"Play Preview"];
+  } else {
+    NSInteger secondsPlayed = seconds - [track.mixStartTime integerValue];
 
-		[self.previewIndicator setDoubleValue:((secondsPlayed / 60.0) * 100)];
+    [self.previewIndicator setDoubleValue:((secondsPlayed / 60.0) * 100)];
 
-		[self.previewStartField setStringValue:[@(secondsPlayed)stringTrackDurationForInput : NO]];
-		[self.previewEndField setStringValue:[@(60 - secondsPlayed)stringTrackDurationForInput : NO]];
+    [self.previewStartField setStringValue:[@(secondsPlayed)stringTrackDurationForInput : NO]];
+    [self.previewEndField setStringValue:[@(60 - secondsPlayed)stringTrackDurationForInput : NO]];
 
-		[self.previewButton setTitle:@"Stop Preview"];
-	}
+    [self.previewButton setTitle:@"Stop Preview"];
+  }
 }
 
 - (void)playSelectedTrack {
-	NSInteger clickedRow = [self.tracksTableView clickedRow];
-	if (clickedRow == -1) {
-		NSIndexSet *selectedSet = [self.tracksTableView selectedRowIndexes];
-		if ([selectedSet count] > 0) {
-			clickedRow = [selectedSet firstIndex];
-		} else {
-			return;
-		}
-	}
+  NSInteger clickedRow = [self.tracksTableView clickedRow];
+  if (clickedRow == -1) {
+    NSIndexSet *selectedSet = [self.tracksTableView selectedRowIndexes];
+    if ([selectedSet count] > 0) {
+      clickedRow = [selectedSet firstIndex];
+    } else {
+      return;
+    }
+  }
 
-	CMTrack *track = [self.trackArrayController arrangedObjects][clickedRow];
+  CMTrack *track = [self.trackArrayController arrangedObjects][clickedRow];
 
-	if (![self isValidTrack:track fileManager:[NSFileManager defaultManager]]) {
-		[self saveAndRefreshData:NO];
+  if (![self isValidTrack:track fileManager:[NSFileManager defaultManager]]) {
+    [self saveAndRefreshData:NO];
 
-		return;
-	}
+    return;
+  }
 
-	CMMediaManager *mediaManager = [CMMediaManager sharedManager];
-	mediaManager.delegate = self;
+  CMMediaManager *mediaManager = [CMMediaManager sharedManager];
+  mediaManager.delegate = self;
 
-	[self.previewIndicator startAnimation:nil];
-	[mediaManager startPreviewTrack:track withCurrentTimeBlock: ^(NSInteger seconds) {
-	    [self refreshPreviewSliderForTrack:track currentTime:seconds];
+  [self.previewIndicator startAnimation:nil];
+  [mediaManager startPreviewTrack:track withCurrentTimeBlock: ^(NSInteger seconds) {
+    [self refreshPreviewSliderForTrack:track currentTime:seconds];
 
-	    if (seconds == ([track.mixStartTime integerValue] + 60)) {
-	        [self refreshPreviewSliderForTrack:nil currentTime:-1];
-	        [self.previewIndicator stopAnimation:nil];
+    if (seconds == ([track.mixStartTime integerValue] + 60)) {
+      [self refreshPreviewSliderForTrack:nil currentTime:-1];
+      [self.previewIndicator stopAnimation:nil];
 
-	        [self stopSelectedTrack];
-	        [self.trackArrayController rearrangeObjects];
-		}
-	}];
+      [self stopSelectedTrack];
+      [self.trackArrayController rearrangeObjects];
+    }
+  }];
 
-	if (self.playingTrack)
-		self.playingTrack.playing = @(NO);
+  if (self.playingTrack)
+    self.playingTrack.playing = @(NO);
 
-	track.playing = @(YES);
-	self.playingTrack = track;
+  track.playing = @(YES);
+  self.playingTrack = track;
 
-	[self saveAndRefreshData:NO];
+  [self saveAndRefreshData:NO];
 }
 
 - (void)stopSelectedTrack {
-	[[CMMediaManager sharedManager] stopPreview];
-	if (self.playingTrack) {
-		self.playingTrack.playing = @(NO);
-		[self saveAndRefreshData:NO];
-	}
+  [[CMMediaManager sharedManager] stopPreview];
+  if (self.playingTrack) {
+    self.playingTrack.playing = @(NO);
+    [self saveAndRefreshData:NO];
+  }
 
-	self.playingTrack = nil;
+  self.playingTrack = nil;
 
-	[self refreshPreviewSliderForTrack:nil currentTime:-1];
+  [self refreshPreviewSliderForTrack:nil currentTime:-1];
 }
 
 - (void)resetState {
-	[self.progressIndicator setDoubleValue:0];
-	[self.progressIndicator stopAnimation:self];
+  [self.progressIndicator setDoubleValue:0];
+  [self.progressIndicator stopAnimation:self];
 
-	[self.progressField setStringValue:@"Progress:"];
+  [self.progressField setStringValue:@"Progress:"];
 
-	[self.clearSelectionButton setEnabled:YES];
-	[self.addTrackButton setEnabled:YES];
+  [self.clearSelectionButton setEnabled:YES];
+  [self.addTrackButton setEnabled:YES];
 
-	self.creatingCenturion = NO;
+  self.creatingCenturion = NO;
 
-	[self refreshDisplay];
+  [self refreshDisplay];
 }
 
 - (BOOL)isValidTrack:(CMTrack *)track fileManager:(NSFileManager *)fileManager {
-	track.invalid = @(![fileManager fileExistsAtPath:track.filePath]);
+  track.invalid = @(![fileManager fileExistsAtPath:track.filePath]);
 
-	return ![track.invalid boolValue];
+  return ![track.invalid boolValue];
 }
 
 - (NSArray *)invalidTracks {
-	NSFileManager *fileManager = [NSFileManager defaultManager];
-	NSMutableArray *nonExistingTracks = [[NSMutableArray alloc] init];
-    NSArray *arrangedObjects = [self.trackArrayController arrangedObjects];
-    
-    for (CMTrack *track in arrangedObjects) {
-        if (![self isValidTrack:track fileManager:fileManager]) {
-            [nonExistingTracks addObject:track];
-        }
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  NSMutableArray *nonExistingTracks = [[NSMutableArray alloc] init];
+  NSArray *arrangedObjects = [self.trackArrayController arrangedObjects];
+
+  for (CMTrack *track in arrangedObjects) {
+    if (![self isValidTrack:track fileManager:fileManager]) {
+      [nonExistingTracks addObject:track];
     }
+  }
 
-	if ([nonExistingTracks count] != 0) {
-		[self saveAndRefreshData:YES];
+  if ([nonExistingTracks count] != 0) {
+    [self saveAndRefreshData:YES];
 
-		return nonExistingTracks;
-	}
+    return nonExistingTracks;
+  }
 
-	// Refresh the table
-	[self.trackArrayController rearrangeObjects];
+  // Refresh the table
+  [self.trackArrayController rearrangeObjects];
 
-	return nil;
+  return nil;
 }
 
 - (void)deleteSelectedtracks {
-	[self.trackArrayController removeObjectsAtArrangedObjectIndexes:[self.tracksTableView selectedRowIndexes]];
+  [self.trackArrayController removeObjectsAtArrangedObjectIndexes:[self.tracksTableView selectedRowIndexes]];
 
-	[self reorderTracks:[self.trackArrayController arrangedObjects] startingAt:0];
+  [self reorderTracks:[self.trackArrayController arrangedObjects] startingAt:0];
 
-	[self.tracksTableView deselectAll:nil];
+  [self.tracksTableView deselectAll:nil];
 
-	[self saveAndRefreshData:NO];
-	[self refreshDisplay];
+  [self saveAndRefreshData:NO];
+  [self refreshDisplay];
 }
 
 - (void)refreshDisplay {
-    __block NSInteger trackCount = 0;
-    [self.dataStore performBackgroundClosureAndWait:^(NSManagedObjectContext *context) {
-        NSString *entityName = [self.dataStore entityNameForObjectClass:[CMTrack class] withClassPrefix:@"CM"];
-        NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:entityName];
-        
-        NSError *error = nil;
-        trackCount = [context countForFetchRequest:request error:&error];
-    }];
+  __block NSInteger trackCount = 0;
 
-	[self.centurionButton setEnabled:((trackCount == kCenturionNumTracks)
-	                                  || (trackCount == kHourOfPowerNumTracks))];
+  __weak typeof(self) weakSelf = self;
+  [self.managedObjectContext performBlockAndWait:^{
+    __strong __typeof(weakSelf) strongSelf = weakSelf;
+    NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"CMTrack"];
+    NSPredicate *validFilePredicate = [NSPredicate predicateWithFormat:@"invalid == 0"];
+    request.predicate = validFilePredicate;
 
-	[[self.numTracksSearchField cell] setPlaceholderString:[[NSString alloc] initWithFormat:@"Search %li Tracks", trackCount]];
+    NSError *error = nil;
+    trackCount = [strongSelf.managedObjectContext countForFetchRequest:request error:&error];
+    [[NSApplication sharedApplication] presentError:error];
+  }];
 
-	NSMutableString *trackLeftString = [[NSMutableString alloc] init];
-	NSInteger centurionTracksLeft = kCenturionNumTracks - trackCount;
-	NSInteger hourOfPowerTracksLeft = kHourOfPowerNumTracks - trackCount;
-	if (centurionTracksLeft > 0) {
-		[trackLeftString appendFormat:@"Add %li for Centurion", centurionTracksLeft];
-	} else if (centurionTracksLeft > 0) {
-		[trackLeftString appendFormat:@"Remove %li for Centurion", ABS(centurionTracksLeft)];
-	}
+  [self.centurionButton setEnabled:((trackCount == kCenturionNumTracks)
+                                    || (trackCount == kHourOfPowerNumTracks))];
 
-	[trackLeftString appendString:@"\n"];
+  [[self.numTracksSearchField cell] setPlaceholderString:[[NSString alloc] initWithFormat:@"Search %li Tracks", trackCount]];
 
-	if (hourOfPowerTracksLeft > 0) {
-		[trackLeftString appendFormat:@"Add %li for Hour Of Power", hourOfPowerTracksLeft];
-	} else if (hourOfPowerTracksLeft < 0) {
-		[trackLeftString appendFormat:@"Remove %li for Hour Of Power", ABS(hourOfPowerTracksLeft)];
-	}
+  NSMutableString *trackLeftString = [[NSMutableString alloc] init];
+  NSInteger centurionTracksLeft = kCenturionNumTracks - trackCount;
+  NSInteger hourOfPowerTracksLeft = kHourOfPowerNumTracks - trackCount;
+  if (centurionTracksLeft > 0) {
+    [trackLeftString appendFormat:@"Add %li for Centurion", centurionTracksLeft];
+  } else if (centurionTracksLeft > 0) {
+    [trackLeftString appendFormat:@"Remove %li for Centurion", ABS(centurionTracksLeft)];
+  }
 
-	[self.numTracksLeftField setStringValue:trackLeftString];
+  [trackLeftString appendString:@"\n"];
 
-	NSString *createString = @"Create Mix";
-	if (centurionTracksLeft == 0)
-		createString = @"Create Centurion";
-	if (hourOfPowerTracksLeft == 0)
-		createString = @"Create Hour Of Power";
-	[self.centurionButton setTitle:createString];
+  if (hourOfPowerTracksLeft > 0) {
+    [trackLeftString appendFormat:@"Add %li for Hour Of Power", hourOfPowerTracksLeft];
+  } else if (hourOfPowerTracksLeft < 0) {
+    [trackLeftString appendFormat:@"Remove %li for Hour Of Power", ABS(hourOfPowerTracksLeft)];
+  }
 
-	self.totalNumTracks = trackCount;
+  [self.numTracksLeftField setStringValue:trackLeftString];
+
+  NSString *createString = @"Create Mix";
+  if (centurionTracksLeft == 0)
+    createString = @"Create Centurion";
+  if (hourOfPowerTracksLeft == 0)
+    createString = @"Create Hour Of Power";
+  [self.centurionButton setTitle:createString];
+
+  self.totalNumTracks = trackCount;
 }
 
 #pragma mark - Actions
 
 - (IBAction)selectTracks:(id)sender {
-	NSOpenPanel *openPanel = [NSOpenPanel openPanel];
-	openPanel.canChooseDirectories = NO;
-	openPanel.allowsMultipleSelection = YES;
+  NSOpenPanel *openPanel = [NSOpenPanel openPanel];
+  openPanel.canChooseDirectories = NO;
+  openPanel.allowsMultipleSelection = YES;
 
-	NSDocumentController *documentController = [NSDocumentController sharedDocumentController];
-	if ([documentController runModalOpenPanel:openPanel forTypes:@[@"mp3", @"m4a"]] == NSModalResponseOK) {
-		NSArray *fileURLs = [openPanel URLs];
-		NSMutableArray *tooShortTrackNames = [[NSMutableArray alloc] init];
+  NSDocumentController *documentController = [NSDocumentController sharedDocumentController];
+  if ([documentController runModalOpenPanel:openPanel forTypes:@[@"mp3", @"m4a"]] == NSModalResponseOK) {
+    NSArray *fileURLs = [openPanel URLs];
+    NSMutableArray *tooShortTrackNames = [[NSMutableArray alloc] init];
 
-		if (self.totalNumTracks + [fileURLs count] > MAX_NUM_TRACKS) {
-            NSAlert *tooManyTracksAlert = [[NSAlert alloc] init];
-            tooManyTracksAlert.messageText = @"Added Too Many Tracks";
-            tooManyTracksAlert.informativeText = [[NSString alloc] initWithFormat:@"You can only add a maximum of %i tracks.", MAX_NUM_TRACKS];
-            [tooManyTracksAlert addButtonWithTitle:@"OK"];
-			[tooManyTracksAlert runModal];
+    if (self.totalNumTracks + [fileURLs count] > MAX_NUM_TRACKS) {
+      NSAlert *tooManyTracksAlert = [[NSAlert alloc] init];
+      tooManyTracksAlert.messageText = @"Added Too Many Tracks";
+      tooManyTracksAlert.informativeText = [[NSString alloc] initWithFormat:@"You can only add a maximum of %i tracks.", MAX_NUM_TRACKS];
+      [tooManyTracksAlert addButtonWithTitle:@"OK"];
+      [tooManyTracksAlert runModal];
 
-			return;
-		}
+      return;
+    }
 
-		[fileURLs enumerateObjectsUsingBlock: ^(NSURL *fileURL, NSUInteger idx, BOOL *stop) {
-		    NSDictionary *metadataDict = [[CMMediaManager sharedManager] metadataForKeys:@[@"title", @"artist"] trackAtURL:fileURL];
+    [fileURLs enumerateObjectsUsingBlock: ^(NSURL *fileURL, NSUInteger idx, BOOL *stop) {
+      NSDictionary *metadataDict = [[CMMediaManager sharedManager] metadataForKeys:@[@"title", @"artist"] trackAtURL:fileURL];
 
-		    if ([metadataDict[@"length"] doubleValue] < 60) {
-		        [tooShortTrackNames addObject:metadataDict[@"title"]];
-			} else {
-                [self.dataStore performClosureAndWait:^(NSManagedObjectContext *context) {
-                    NSString *entityName = [self.dataStore entityNameForObjectClass:[CMTrack class] withClassPrefix:@"CM"];
-                    [context insertObjectWithEntityName:entityName insertion:^(CMTrack *track) {
-                        track.identifier = [[NSString alloc] initWithFormat:@"%@%@", [fileURL absoluteString], [NSDate date]];
-                        track.filePath = [fileURL path];
-                        track.order = @(self.totalNumTracks + idx);
-                        
-                        [metadataDict enumerateKeysAndObjectsUsingBlock: ^(id key, id obj, BOOL *stop) {
-                            [track setValue:obj forKey:key];
-                        }];
-                    }];
-                }];
-			}
-		}];
+      if ([metadataDict[@"length"] doubleValue] < 60) {
+        [tooShortTrackNames addObject:metadataDict[@"title"]];
+      } else {
+        __weak __typeof(self) weakSelf = self;
+        [self.managedObjectContext performBlockAndWait:^{
+          
+        }]
+        [self.dataStore performClosureAndWait:^(NSManagedObjectContext *context) {
+          NSString *entityName = [self.dataStore entityNameForObjectClass:[CMTrack class] withClassPrefix:@"CM"];
+          [context insertObjectWithEntityName:entityName insertion:^(CMTrack *track) {
+            track.identifier = [[NSString alloc] initWithFormat:@"%@%@", [fileURL absoluteString], [NSDate date]];
+            track.filePath = [fileURL path];
+            track.order = @(self.totalNumTracks + idx);
 
-		if ([tooShortTrackNames count] != 0) {
-			NSString *message = nil;
+            [metadataDict enumerateKeysAndObjectsUsingBlock: ^(id key, id obj, BOOL *stop) {
+              [track setValue:obj forKey:key];
+            }];
+          }];
+        }];
+      }
+    }];
 
-			if ([tooShortTrackNames count] < 5) {
-				NSMutableString *trackNames = [[NSMutableString alloc] init];
+    if ([tooShortTrackNames count] != 0) {
+      NSString *message = nil;
 
-				[tooShortTrackNames enumerateObjectsUsingBlock: ^(NSString *name, NSUInteger idx, BOOL *stop) {
-				    if (idx == 0) {
-				        [trackNames appendFormat:@"\n\"%@\"\n", name];
-					} else {
-				        [trackNames appendFormat:@"\"%@\"\n", name];
-					}
-				}];
+      if ([tooShortTrackNames count] < 5) {
+        NSMutableString *trackNames = [[NSMutableString alloc] init];
 
-				message = [[NSString alloc] initWithFormat:@"These tracks:%@are shorter than a minute. They have not been added to the list.", trackNames];
-			} else {
-				message = [[NSString alloc] initWithFormat:@"There are %li tracks which are shorter than a minute. They have not been added to the list.", [tooShortTrackNames count]];
-			}
+        [tooShortTrackNames enumerateObjectsUsingBlock: ^(NSString *name, NSUInteger idx, BOOL *stop) {
+          if (idx == 0) {
+            [trackNames appendFormat:@"\n\"%@\"\n", name];
+          } else {
+            [trackNames appendFormat:@"\"%@\"\n", name];
+          }
+        }];
 
-            NSAlert *tooShortAlert = [[NSAlert alloc] init];
-            tooShortAlert.messageText = @"Track Duration Error";
-            tooShortAlert.informativeText = message;
-            [tooShortAlert addButtonWithTitle:@"OK"];
+        message = [[NSString alloc] initWithFormat:@"These tracks:%@are shorter than a minute. They have not been added to the list.", trackNames];
+      } else {
+        message = [[NSString alloc] initWithFormat:@"There are %li tracks which are shorter than a minute. They have not been added to the list.", [tooShortTrackNames count]];
+      }
 
-			[tooShortAlert runModal];
-		} else {
-			[self handleFirstRunTracksAdded];
-		}
+      NSAlert *tooShortAlert = [[NSAlert alloc] init];
+      tooShortAlert.messageText = @"Track Duration Error";
+      tooShortAlert.informativeText = message;
+      [tooShortAlert addButtonWithTitle:@"OK"];
 
-		[self saveAndRefreshData:NO];
-	}
+      [tooShortAlert runModal];
+    } else {
+      [self handleFirstRunTracksAdded];
+    }
 
-	[self refreshDisplay];
+    [self saveAndRefreshData:NO];
+  }
+
+  [self refreshDisplay];
 }
 
 - (IBAction)clearSelectedtracks:(id)sender {
-	[self stopSelectedTrack];
+  [self stopSelectedTrack];
 
-	// Remove tracks here
-    [self.dataStore performBackgroundClosureAndWait:^(NSManagedObjectContext *context) {
-        NSError *error = nil;
-        
-        NSString *entityName = [self.dataStore entityNameForObjectClass:[CMTrack class] withClassPrefix:@"CM"];
-        NSArray *allTracks = [context findAllForEntityWithEntityName:entityName error:&error];
-        
-        for (CMTrack *track in allTracks) {
-            [context deleteObject:track];
-        }
-    }];
-    
-    self.totalNumTracks = 0;
+  // Remove tracks here
+  [self.dataStore performBackgroundClosureAndWait:^(NSManagedObjectContext *context) {
+    NSError *error = nil;
 
-    [self refreshDisplay];
-    [self saveAndRefreshData:NO];
+    NSString *entityName = [self.dataStore entityNameForObjectClass:[CMTrack class] withClassPrefix:@"CM"];
+    NSArray *allTracks = [context findAllForEntityWithEntityName:entityName error:&error];
+
+    for (CMTrack *track in allTracks) {
+      [context deleteObject:track];
+    }
+  }];
+
+  self.totalNumTracks = 0;
+
+  [self refreshDisplay];
+  [self saveAndRefreshData:NO];
 }
 
 - (IBAction)centurion:(id)sender {
-	if (self.creatingCenturion) {
-		[[CMMediaManager sharedManager] cancelCenturionMix];
+  if (self.creatingCenturion) {
+    [[CMMediaManager sharedManager] cancelCenturionMix];
 
-		[self.clearSelectionButton setEnabled:YES];
-		[self.addTrackButton setEnabled:YES];
-		[self.centurionButton setTitle:@"Create Centurion"];
+    [self.clearSelectionButton setEnabled:YES];
+    [self.addTrackButton setEnabled:YES];
+    [self.centurionButton setTitle:@"Create Centurion"];
 
-		[self.progressIndicator stopAnimation:self];
-	} else {
-		[self stopSelectedTrack];
+    [self.progressIndicator stopAnimation:self];
+  } else {
+    [self stopSelectedTrack];
 
-		NSArray *invalidTracks = [self invalidTracks];
+    NSArray *invalidTracks = [self invalidTracks];
 
-		if (!invalidTracks) {
-			NSSavePanel *savePanel = [NSSavePanel savePanel];
-			savePanel.allowedFileTypes = @[@"m4a"];
-			[savePanel beginSheetModalForWindow:[[self view] window] completionHandler: ^(NSInteger result) {
-			    if (result == NSFileHandlingPanelOKButton) {
-			        self.creatingCenturion = YES;
+    if (!invalidTracks) {
+      NSSavePanel *savePanel = [NSSavePanel savePanel];
+      savePanel.allowedFileTypes = @[@"m4a"];
+      [savePanel beginSheetModalForWindow:[[self view] window] completionHandler: ^(NSInteger result) {
+        if (result == NSFileHandlingPanelOKButton) {
+          self.creatingCenturion = YES;
 
-			        [self.clearSelectionButton setEnabled:NO];
-			        [self.addTrackButton setEnabled:NO];
-			        [self.centurionButton setTitle:@"Cancel Mix"];
+          [self.clearSelectionButton setEnabled:NO];
+          [self.addTrackButton setEnabled:NO];
+          [self.centurionButton setTitle:@"Cancel Mix"];
 
-			        [[CMMediaManager sharedManager] createCenturionMixAtURL:[savePanel URL] fromTracks:[self.trackArrayController arrangedObjects] delegate:self completion: ^(BOOL success) {
-			            [self showNotificationSuccess:success];
+          [[CMMediaManager sharedManager] createCenturionMixAtURL:[savePanel URL] fromTracks:[self.trackArrayController arrangedObjects] delegate:self completion: ^(BOOL success) {
+            [self showNotificationSuccess:success];
 
-			            [self resetState];
-					}];
-				}
-			}];
-		} else {
-            NSAlert *invalidTracksAlert = [[NSAlert alloc] init];
-            invalidTracksAlert.messageText = @"Invalid Tracks";
-            invalidTracksAlert.informativeText = [[NSString alloc] initWithFormat:@"There are %li tracks whos original files could not be located. These tracks are highlighted in red. Replace them before creating a mix.", [invalidTracks count]];
-            [invalidTracksAlert addButtonWithTitle:@"OK"];
-            
-			[invalidTracksAlert runModal];
-		}
-	}
+            [self resetState];
+          }];
+        }
+      }];
+    } else {
+      NSAlert *invalidTracksAlert = [[NSAlert alloc] init];
+      invalidTracksAlert.messageText = @"Invalid Tracks";
+      invalidTracksAlert.informativeText = [[NSString alloc] initWithFormat:@"There are %li tracks whos original files could not be located. These tracks are highlighted in red. Replace them before creating a mix.", [invalidTracks count]];
+      [invalidTracksAlert addButtonWithTitle:@"OK"];
+
+      [invalidTracksAlert runModal];
+    }
+  }
 }
 
 - (IBAction)openInFinder:(id)sender {
-	CMTrack *track = [self.trackArrayController arrangedObjects][[self.tracksTableView selectedRow]];
+  CMTrack *track = [self.trackArrayController arrangedObjects][[self.tracksTableView selectedRow]];
 
-	if ([track.invalid boolValue]) {
-        NSAlert *alert = [[NSAlert alloc] init];
-        alert.messageText = @"File Error";
-        alert.informativeText = [[NSString alloc] initWithFormat:@"Make sure the original file for \"%@\" exists or that it matches the sample rate of the other tracks.", track.title];
-        [alert addButtonWithTitle:@"OK"];
+  if ([track.invalid boolValue]) {
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.messageText = @"File Error";
+    alert.informativeText = [[NSString alloc] initWithFormat:@"Make sure the original file for \"%@\" exists or that it matches the sample rate of the other tracks.", track.title];
+    [alert addButtonWithTitle:@"OK"];
 
-		[alert runModal];
-	} else {
-		NSArray *fileURLs = @[[[NSURL alloc] initFileURLWithPath:track.filePath]];
-		[[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
-	}
+    [alert runModal];
+  } else {
+    NSArray *fileURLs = @[[[NSURL alloc] initFileURLWithPath:track.filePath]];
+    [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
+  }
 }
 
 - (IBAction)preview:(id)sender {
-	[self handleFirstTrackPlay];
+  [self handleFirstTrackPlay];
 
-	if ([sender isKindOfClass:[NSButton class]]) {
-		if (self.previewPlaying) {
-			[self stopSelectedTrack];
-		} else {
-			[self playSelectedTrack];
-		}
+  if ([sender isKindOfClass:[NSButton class]]) {
+    if (self.previewPlaying) {
+      [self stopSelectedTrack];
+    } else {
+      [self playSelectedTrack];
+    }
 
-		self.previewPlaying = !self.previewPlaying;
-	} else {
-		[self playSelectedTrack];
+    self.previewPlaying = !self.previewPlaying;
+  } else {
+    [self playSelectedTrack];
 
-		self.previewPlaying = YES;
-	}
+    self.previewPlaying = YES;
+  }
 
-	[self.trackArrayController rearrangeObjects];
+  [self.trackArrayController rearrangeObjects];
 }
 
 #pragma mark - Formatter delegate
 
 - (void) timeFormatter:(CMTimeFormatter *)timeFormatter
     enteredInvalidData:(NSUInteger)numInvalidTries {
-	if ((numInvalidTries % 3) == 0) {
-		CGRect frame = [self.tracksTableView frameOfCellAtColumn:4
-		                                                     row:[self.tracksTableView selectedRow]];
-		[NSPopover showRelativeToRect:frame
-		                       ofView:self.tracksTableView
-		                preferredEdge:NSMaxXEdge
-		                       string:@"The mix start time must be at least a minute before the track's end time."
-		                     maxWidth:250.0];
-	}
+  if ((numInvalidTries % 3) == 0) {
+    CGRect frame = [self.tracksTableView frameOfCellAtColumn:4
+                                                         row:[self.tracksTableView selectedRow]];
+    [NSPopover showRelativeToRect:frame
+                           ofView:self.tracksTableView
+                    preferredEdge:NSMaxXEdge
+                           string:@"The mix start time must be at least a minute before the track's end time."
+                         maxWidth:250.0];
+  }
 }
 
 #pragma mark - Media delegate
 
 - (void)mediaManager:(CMMediaManager *)mediaManaher didFailWithErrorDescription:(NSString *)description {
-    NSAlert *errorAlert = [[NSAlert alloc] init];
-    errorAlert.messageText = @"Error Making Mix";
-    errorAlert.informativeText = description;
-    [errorAlert addButtonWithTitle:@"OK"];
+  NSAlert *errorAlert = [[NSAlert alloc] init];
+  errorAlert.messageText = @"Error Making Mix";
+  errorAlert.informativeText = description;
+  [errorAlert addButtonWithTitle:@"OK"];
 
-	[errorAlert runModal];
+  [errorAlert runModal];
 
-	[self saveAndRefreshData:YES];
-	[self resetState];
+  [self saveAndRefreshData:YES];
+  [self resetState];
 }
 
 - (void)mediaManager:(CMMediaManager *)mediaManager exportProgressStatus:(double)progress {
-	[self.progressIndicator setDoubleValue:progress];
+  [self.progressIndicator setDoubleValue:progress];
 
-	if ([self.progressIndicator doubleValue] > 99.0) {
-		[self.progressIndicator stopAnimation:self];
-		[self.progressField setStringValue:@"Complete!"];
-	}
+  if ([self.progressIndicator doubleValue] > 99.0) {
+    [self.progressIndicator stopAnimation:self];
+    [self.progressField setStringValue:@"Complete!"];
+  }
 }
 
 - (void)mediaManagerWillStartExporting:(CMMediaManager *)mediaManager {
-	[self.progressField setStringValue:@"Exporting Mix..."];
-	[self.progressIndicator setIndeterminate:NO];
+  [self.progressField setStringValue:@"Exporting Mix..."];
+  [self.progressIndicator setIndeterminate:NO];
 }
 
 - (void)mediaManagerDidStartProcessingMedia:(CMMediaManager *)mediaManager {
-	[self.progressIndicator startAnimation:self];
+  [self.progressIndicator startAnimation:self];
 
-	[self.progressField setStringValue:@"Processing Tracks..."];
-	[self.progressIndicator setIndeterminate:YES];
+  [self.progressField setStringValue:@"Processing Tracks..."];
+  [self.progressIndicator setIndeterminate:YES];
 }
 
 #pragma mark - Table View Logic
 
 - (NSArray *)itemsWithOrderBetween:(NSInteger)lowValue and:(NSInteger)highValue {
-	NSPredicate *fetchPredicate = [NSPredicate predicateWithFormat:@"order >= %i && order <= %i", lowValue, highValue];
+  NSPredicate *fetchPredicate = [NSPredicate predicateWithFormat:@"order >= %i && order <= %i", lowValue, highValue];
 
-	return [self tracksWithPredicate:fetchPredicate];
+  return [self tracksWithPredicate:fetchPredicate];
 }
 
 - (NSArray *)itemsWithOrderGreaterThanOrEqualTo:(NSInteger)value {
-	NSPredicate *fetchPredicate = [NSPredicate predicateWithFormat:@"order >= %i", value];
+  NSPredicate *fetchPredicate = [NSPredicate predicateWithFormat:@"order >= %i", value];
 
-	return [self tracksWithPredicate:fetchPredicate];
+  return [self tracksWithPredicate:fetchPredicate];
 }
 
 - (NSArray *)tracksWithPredicate:(NSPredicate *)predicate {
-    __block NSArray *tracks = nil;
-    [self.dataStore performClosureAndWait:^(NSManagedObjectContext *context) {
-        NSError *error = nil;
-        NSString *entityName = [self.dataStore entityNameForObjectClass:[CMTrack class] withClassPrefix:@"CM"];
-        NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"order" ascending:YES];
-        tracks = [context findEntitiesForEntityName:entityName withPredicate:predicate andSortDescriptors:@[sortDescriptor] error:&error];
-        [error handle];
-    }];
-    
-    return tracks;
+  __block NSArray *tracks = nil;
+  __weak typeof(self) weakSelf = self;
+  [self.managedObjectContext performBlockAndWait:^{
+    __strong __typeof(weakSelf) strongSelf = weakSelf;
+    NSError *error = nil;
+
+    NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"CMTrack"];
+    request.predicate = predicate;
+    request.sortDescriptors = @[[[NSSortDescriptor alloc] initWithKey:@"order" ascending:YES]];
+
+    [strongSelf.managedObjectContext executeFetchRequest:request error:&error];
+
+    if (error != nil) {
+      [[NSApplication sharedApplication] presentError:error];
+    }
+  }];
+
+  return tracks;
 }
 
 - (NSInteger)reorderTracks:(NSArray *)tracks startingAt:(NSInteger)value {
-	__block NSInteger currentTrack = value;
+  __block NSInteger currentTrack = value;
 
-	if (tracks && ([tracks count] > 0)) {
-        for (CMTrack *track in tracks) {
-		    track.order = @(currentTrack);
-		    currentTrack++;
-		}
-	}
+  if (tracks && ([tracks count] > 0)) {
+    for (CMTrack *track in tracks) {
+      track.order = @(currentTrack);
+      currentTrack++;
+    }
+  }
 
-	return currentTrack;
+  return currentTrack;
 }
 
 #pragma mark - Tracks Table view
 
 - (void)tableView:(NSTableView *)tableView didPressDeleteKeyForRowIndexes:(NSIndexSet *)indexSet {
-	[self deleteSelectedtracks];
+  [self deleteSelectedtracks];
 
-    [self.dataStore performBackgroundClosureAndSave:^(NSManagedObjectContext *context) {
-        NSError *error = nil;
-        
-        NSString *entityName = [self.dataStore entityNameForObjectClass:[CMTrack class] withClassPrefix:@"CM"];
-        NSArray *allTracks = [context findAllForEntityWithEntityName:entityName error:&error];
+  [self.dataStore performBackgroundClosureAndSave:^(NSManagedObjectContext *context) {
+    NSError *error = nil;
 
-        [self reorderTracks:allTracks startingAt:0];
-    } completion:^(NSManagedObjectContext *context, NSError *error) {
-        [self.trackArrayController rearrangeObjects];
-    }];
+    NSString *entityName = [self.dataStore entityNameForObjectClass:[CMTrack class] withClassPrefix:@"CM"];
+    NSArray *allTracks = [context findAllForEntityWithEntityName:entityName error:&error];
+
+    [self reorderTracks:allTracks startingAt:0];
+  } completion:^(NSManagedObjectContext *context, NSError *error) {
+    [self.trackArrayController rearrangeObjects];
+  }];
 }
 
 - (BOOL)tableView:(NSTableView *)tableView shouldRespondToDeleteKeyForRowIndexes:(NSIndexSet *)indexSet {
-	return !self.creatingCenturion;
+  return !self.creatingCenturion;
 }
 
 #pragma mark - Table view
 
 - (BOOL)tableView:(NSTableView *)tableView shouldEditTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-	CMTrack *track = [self.trackArrayController arrangedObjects][row];
+  CMTrack *track = [self.trackArrayController arrangedObjects][row];
 
-	return !([track.invalid boolValue] || [track.playing boolValue]);
+  return !([track.invalid boolValue] || [track.playing boolValue]);
 }
 
 - (void)  tableView:(NSTableView *)tableView
     willDisplayCell:(id)cell
      forTableColumn:(NSTableColumn *)tableColumn
                 row:(NSInteger)row {
-	CMTrack *track = [self.trackArrayController arrangedObjects][row];
-	if ([track.invalid boolValue]) {
-		if ([tableColumn.identifier isEqualToString:@"Path"]) {
-			[cell setTitle:@"Error"];
-		} else {
-			[cell setTextColor:[NSColor redColor]];
-		}
-	} else {
-		if ([tableColumn.identifier isEqualToString:@"Path"]) {
-			[cell setTitle:@"Show"];
-		} else {
-			if ([track.playing boolValue]) {
-				[cell setTextColor:[NSColor blueColor]];
-			} else {
-				[cell setTextColor:[NSColor blackColor]];
-			}
-		}
-	}
+  CMTrack *track = [self.trackArrayController arrangedObjects][row];
+  if ([track.invalid boolValue]) {
+    if ([tableColumn.identifier isEqualToString:@"Path"]) {
+      [cell setTitle:@"Error"];
+    } else {
+      [cell setTextColor:[NSColor redColor]];
+    }
+  } else {
+    if ([tableColumn.identifier isEqualToString:@"Path"]) {
+      [cell setTitle:@"Show"];
+    } else {
+      if ([track.playing boolValue]) {
+        [cell setTextColor:[NSColor blueColor]];
+      } else {
+        [cell setTextColor:[NSColor blackColor]];
+      }
+    }
+  }
 
-	if ([tableColumn.identifier isEqualToString:@"Mix Start"]) {
-		CMTimeFormatter *formatter = [[CMTimeFormatter alloc] initWithDelegate:self];
-		formatter.maxSecondsValue = ([track.length integerValue] - 60);
-		[cell setFormatter:formatter];
-	}
+  if ([tableColumn.identifier isEqualToString:@"Mix Start"]) {
+    CMTimeFormatter *formatter = [[CMTimeFormatter alloc] initWithDelegate:self];
+    formatter.maxSecondsValue = ([track.length integerValue] - 60);
+    [cell setFormatter:formatter];
+  }
 }
 
 - (BOOL)tableView:(NSTableView *)tableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard *)pboard {
-	NSData *data = [NSKeyedArchiver archivedDataWithRootObject:rowIndexes];
-	[pboard declareTypes:[NSArray arrayWithObject:DraggedCellIdentifier] owner:self];
-	[pboard setData:data forType:DraggedCellIdentifier];
+  NSData *data = [NSKeyedArchiver archivedDataWithRootObject:rowIndexes];
+  [pboard declareTypes:[NSArray arrayWithObject:DraggedCellIdentifier] owner:self];
+  [pboard setData:data forType:DraggedCellIdentifier];
 
-	return ([tableView.selectedRowIndexes count] <= 1) && !self.creatingCenturion;
+  return ([tableView.selectedRowIndexes count] <= 1) && !self.creatingCenturion;
 }
 
 - (NSDragOperation)tableView:(NSTableView *)tableView
                 validateDrop:(id <NSDraggingInfo> )info
                  proposedRow:(NSInteger)row
        proposedDropOperation:(NSTableViewDropOperation)dropOperation {
-	if ([[info draggingSource] isEqual:self.tracksTableView]) {
-		if (dropOperation == NSTableViewDropOn) [tableView setDropRow:row dropOperation:NSTableViewDropAbove];
+  if ([[info draggingSource] isEqual:self.tracksTableView]) {
+    if (dropOperation == NSTableViewDropOn) [tableView setDropRow:row dropOperation:NSTableViewDropAbove];
 
-		return NSDragOperationMove;
-	} else {
-		return NSDragOperationNone;
-	}
+    return NSDragOperationMove;
+  } else {
+    return NSDragOperationNone;
+  }
 }
 
 - (BOOL)tableView:(NSTableView *)tableView
        acceptDrop:(id <NSDraggingInfo> )info
               row:(NSInteger)row
     dropOperation:(NSTableViewDropOperation)dropOperation {
-	NSPasteboard *pasteboard = [info draggingPasteboard];
-	NSData *rowData = [pasteboard dataForType:DraggedCellIdentifier];
-	NSIndexSet *rowIndexes = [NSKeyedUnarchiver unarchiveObjectWithData:rowData];
+  NSPasteboard *pasteboard = [info draggingPasteboard];
+  NSData *rowData = [pasteboard dataForType:DraggedCellIdentifier];
+  NSIndexSet *rowIndexes = [NSKeyedUnarchiver unarchiveObjectWithData:rowData];
 
-	NSArray *allItemsArray = [self.trackArrayController arrangedObjects];
-	NSMutableArray *draggedItemsArray = [NSMutableArray arrayWithCapacity:[rowIndexes count]];
+  NSArray *allItemsArray = [self.trackArrayController arrangedObjects];
+  NSMutableArray *draggedItemsArray = [NSMutableArray arrayWithCapacity:[rowIndexes count]];
 
-	NSUInteger currentItemIndex;
-	NSRange range = NSMakeRange(0, [rowIndexes lastIndex] + 1);
-	while ([rowIndexes getIndexes:&currentItemIndex maxCount:1 inIndexRange:&range] > 0) {
-		NSManagedObject *thisItem = [allItemsArray objectAtIndex:currentItemIndex];
-		[draggedItemsArray addObject:thisItem];
-	}
+  NSUInteger currentItemIndex;
+  NSRange range = NSMakeRange(0, [rowIndexes lastIndex] + 1);
+  while ([rowIndexes getIndexes:&currentItemIndex maxCount:1 inIndexRange:&range] > 0) {
+    NSManagedObject *thisItem = [allItemsArray objectAtIndex:currentItemIndex];
+    [draggedItemsArray addObject:thisItem];
+  }
 
-	for (NSInteger i = 0; i < [draggedItemsArray count]; i++) {
-		CMTrack *track = draggedItemsArray[i];
-		track.order = @(-1);
-	}
+  for (NSInteger i = 0; i < [draggedItemsArray count]; i++) {
+    CMTrack *track = draggedItemsArray[i];
+    track.order = @(-1);
+  }
 
-	NSInteger tempRow = (row == 0) ? -1 : row - 1;
+  NSInteger tempRow = (row == 0) ? -1 : row - 1;
 
-	NSArray *startItemsArray = [self itemsWithOrderBetween:0 and:tempRow];
-	NSArray *endItemsArray = [self itemsWithOrderGreaterThanOrEqualTo:row];
+  NSArray *startItemsArray = [self itemsWithOrderBetween:0 and:tempRow];
+  NSArray *endItemsArray = [self itemsWithOrderGreaterThanOrEqualTo:row];
 
-	NSInteger currentOrder = 0;
+  NSInteger currentOrder = 0;
 
-	currentOrder = [self reorderTracks:startItemsArray startingAt:0];
-	currentOrder = [self reorderTracks:draggedItemsArray startingAt:currentOrder];
-	[self reorderTracks:endItemsArray startingAt:currentOrder];
+  currentOrder = [self reorderTracks:startItemsArray startingAt:0];
+  currentOrder = [self reorderTracks:draggedItemsArray startingAt:currentOrder];
+  [self reorderTracks:endItemsArray startingAt:currentOrder];
 
-	[self saveAndRefreshData:YES];
+  [self saveAndRefreshData:YES];
 
-	return YES;
+  return YES;
 }
 
 #pragma mark - Window
 
 - (void)windowDidBecomeMain:(NSNotification *)notification {
-	[self handleFirstRunOnLaunch];
-    [self refreshDisplay];
+  [self handleFirstRunOnLaunch];
+  [self refreshDisplay];
 }
 
 - (BOOL)windowShouldClose:(id)sender {
-	if (self.creatingCenturion) {
-        NSAlert *closeAlert = [[NSAlert alloc] init];
-        closeAlert.messageText = @"Export In Progress";
-        closeAlert.informativeText = @"Centurion Maker is in the process of exporting a mix. Are you sure you wish to close the application and cancel the export?";
-        [closeAlert addButtonWithTitle:@"Yes"];
-        [closeAlert addButtonWithTitle:@"No"];
-        
-        [closeAlert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
-            [NSApp terminate:self];
-        }];
+  if (self.creatingCenturion) {
+    NSAlert *closeAlert = [[NSAlert alloc] init];
+    closeAlert.messageText = @"Export In Progress";
+    closeAlert.informativeText = @"Centurion Maker is in the process of exporting a mix. Are you sure you wish to close the application and cancel the export?";
+    [closeAlert addButtonWithTitle:@"Yes"];
+    [closeAlert addButtonWithTitle:@"No"];
 
-        return NO;
-	}
+    [closeAlert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+      [NSApp terminate:self];
+    }];
 
-	return YES;
+    return NO;
+  }
+
+  return YES;
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
-	if (self.creatingCenturion) {
-		[[CMMediaManager sharedManager] cancelCenturionMix];
-	}
+  if (self.creatingCenturion) {
+    [[CMMediaManager sharedManager] cancelCenturionMix];
+  }
 
-	[self stopSelectedTrack];
+  [self stopSelectedTrack];
 }
 
 + (void)restoreWindowWithIdentifier:(NSString *)identifier
                               state:(NSCoder *)state
                   completionHandler:(void (^)(NSWindow *, NSError *))completionHandler {
-	// Get the window from the window controller,
-	// which is stored as an outlet by the delegate.
-	// Both the app delegate and window controller are
-	// created when the main nib file is loaded.
-	CMAppDelegate *appDelegate = (CMAppDelegate *)[[NSApplication sharedApplication] delegate];
-	NSWindow *mainWindow = appDelegate.window;
-
-	// Pass the window to the provided completion handler.
-	completionHandler(mainWindow, nil);
+  // Get the window from the window controller,
+  // which is stored as an outlet by the delegate.
+  // Both the app delegate and window controller are
+  // created when the main nib file is loaded.
+  CMAppDelegate *appDelegate = (CMAppDelegate *)[[NSApplication sharedApplication] delegate];
+  NSWindow *mainWindow = appDelegate.window;
+  
+  // Pass the window to the provided completion handler.
+  completionHandler(mainWindow, nil);
 }
 
 @end

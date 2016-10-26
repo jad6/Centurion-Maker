@@ -20,6 +20,6 @@
 
 @interface CMTrackTableView : NSTableView
 
-@property (weak, nonatomic) IBOutlet id <CMTrackTableViewDelegate> delegate;
+@property (weak, atomic) IBOutlet id <CMTrackTableViewDelegate> delegate;
 
 @end

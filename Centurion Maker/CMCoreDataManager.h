@@ -6,14 +6,17 @@
 //  Copyright (c) 2014 Jad. All rights reserved.
 //
 
-@import DataStore;
 @import CoreData;
 @import Foundation;
 
 @interface CMCoreDataManager : NSObject
 
-+ (instancetype)sharedManager;
+@property (class, readonly, strong) CMCoreDataManager *defaultManager;
 
-@property (nonatomic, strong, readonly) DataStore *dataStore;
+@property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+@property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
+@property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
+
+- (BOOL)saveContext:(NSError **)error;
 
 @end
